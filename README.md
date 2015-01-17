@@ -4,12 +4,17 @@ sbt-play-scalajs is a SBT plugin which allows you to use Scala.js along with Pla
 
 ## Usage
 
-Add the sbt plugin to the `project/plugins.sbt` file of your project:
+Specify the sbt version in `project/build.properties` which needs to be 0.13.5 or higher:
+```
+sbt.version=0.13.5
+```
+
+Add the sbt plugin to the `project/plugins.sbt` file:
 ```
 addSbtPlugin("com.vmunier" % "sbt-play-scalajs" % "0.1.0")
 ```
 
-In your `project/Build.scala`, use PlayScalaJS as follows:
+Lastly, use PlayScalaJS as follows in `project/Build.scala`:
 ```
 import sbt._
 import org.scalajs.sbtplugin.cross.CrossProject
