@@ -1,5 +1,7 @@
 # sbt-play-scalajs
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/vmunier/sbt-play-scalajs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 sbt-play-scalajs is a SBT plugin which allows you to use Scala.js along with Play Framework.
 
 ## Usage
