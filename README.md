@@ -1,5 +1,7 @@
 # sbt-play-scalajs
 
+[![License](http://img.shields.io/:license-Apache%202-red.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt)
+[![Download](https://api.bintray.com/packages/vmunier/scalajs/sbt-play-scalajs/images/download.svg) ](https://bintray.com/vmunier/scalajs/sbt-play-scalajs/_latestVersion)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/vmunier/sbt-play-scalajs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 sbt-play-scalajs is a SBT plugin which allows you to use Scala.js along with Play Framework.
