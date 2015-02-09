@@ -1,70 +1,91 @@
 package playscalajs
 
-import com.typesafe.sbt.packager.universal.UniversalKeys
-import com.typesafe.sbteclipse.core.EclipsePlugin.EclipseKeys
+import com.typesafe.sbt.web.Import.WebKeys
+import com.typesafe.sbt.web.SbtWeb.autoImport._
+import com.typesafe.sbt.web.pipeline.Pipeline
+import com.typesafe.sbt.web.{PathMapping, SbtWeb}
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-import org.scalajs.sbtplugin.cross.{CrossProject, CrossType}
-import play.PlayScala
+import org.scalajs.sbtplugin.cross.CrossProject
+import sbt.Def.Initialize
 import sbt.Keys._
 import sbt._
 
-object PlayScalaJS extends UniversalKeys {
+object PlayScalaJS extends AutoPlugin {
 
-  def apply(id: String, base: File): CrossProject =
-    PlayScalaJS(id + "JVM", id + "JS", base, CrossType.Full)
+  override def requires = SbtWeb
 
-  def apply(jvmId: String, jsId: String, base: File, crossType: CrossType): CrossProject = {
-    val sharedSrcDir = crossType.sharedSrcDir(crossType.jvmDir(base), "main")
-
-    val crossJs = CrossProject(jvmId, jsId, base, crossType).
-      jsSettings(buildJsSettings: _*)
-
-    crossJs.jvmConfigure(_ enablePlugins PlayScala aggregate crossJs.js).
-      jvmSettings(buildJvmSettings(base, crossJs.js, sharedSrcDir): _*)
-  }
+  override def trigger = allRequirements
 
   object autoImport {
-    val scalajsOutputDir = Def.settingKey[File]("directory for javascript files output by scalajs")
+    val scalaJSProjects = Def.settingKey[Seq[Project]]("Scala.js projects attached to the play project")
+    val crossProjects = Def.settingKey[Seq[CrossProject]]("Scala.js cross projects containing scala files needed for Source Maps")
+
+    val scalaJSDev = Def.taskKey[Seq[File]]("Apply fastOptJS and packageScalaJSLauncher on all Scala.js projects")
+    val scalaJSProd = Def.taskKey[Pipeline.Stage]("Apply fullOptJS and packageScalaJSLauncher on all Scala.js projects")
   }
-  import autoImport._
+  import playscalajs.PlayScalaJS.autoImport._
 
-  val PlayStart = "playStart"
+  override def projectSettings: Seq[Setting[_]] = Seq(
+    scalaJSProjects := Seq(),
+    crossProjects := Seq(),
+    scalaJSDev := scalaJSDevTask.value,
+    sourceGenerators in Assets <+= scalaJSDev,
+    scalaJSProd := scalaJSProdTask.value
+  )
 
-  def buildJvmSettings(base: File, js: Project, sharedSrcDir: Option[File]): Seq[Setting[_]] =
-    Seq(
-      scalajsOutputDir := (classDirectory in Compile).value / "public" / "javascripts",
-      compile in Compile <<= (compile in Compile) dependsOn (fastOptJS in(js, Compile)) dependsOn copySourceMapsTask(base, js.base, sharedSrcDir),
-      dist <<= dist dependsOn (fullOptJS in(js, Compile)),
-      stage <<= stage dependsOn (fullOptJS in(js, Compile)),
-      EclipseKeys.skipParents in ThisBuild := false,
-      commands ++= Seq(playStartCommand, startCommand(js))
-    ) ++ {
-      // ask scalajs project to put its outputs in scalajsOutputDir
-      Seq(packageScalaJSLauncher, fastOptJS, fullOptJS) map { packageJSKey =>
-        crossTarget in(js, Compile, packageJSKey) := scalajsOutputDir.value
+  def scalaJSDevTask(): Initialize[Task[Seq[File]]] = Def.task {
+    val sources = sourcemapScalaFiles(fastOptJS).value
+    val target = (WebKeys.public in Assets).value
+    IO.copy(sources.map { case (file, path) => file -> (target / path)})
+    scalaJSOutput(fastOptJS).value.map(_._1)
+  }
+
+  def scalaJSProdTask(): Initialize[Task[Pipeline.Stage]] = Def.task { mappings: Seq[PathMapping] =>
+    mappings ++ scalaJSOutput(fullOptJS).value ++ sourcemapScalaFiles(fullOptJS).value
+  }
+
+  def scalaJSOutput(optJS: TaskKey[Attributed[File]]): Initialize[Task[Seq[PathMapping]]] = Def.task {
+    onScalaJSProjectsCompile(optJS, packageScalaJSLauncher).value.map(_.data).flatMap { f =>
+      // Neither f nor the .map file do necessarily exist. e.g. packageScalaJSLauncher := false, emitSourceMaps := false
+      Seq(f, new File(f.getCanonicalPath + ".map")).filter(_.exists).map(f => f -> f.getName)
+    }
+  }
+
+  def sourcemapScalaFiles(optJS: TaskKey[Attributed[File]]): Initialize[Task[Seq[PathMapping]]] = Def.task {
+    val projectBaseDirectories =
+      filterSettingKeySeq(crossProjects, (cp: CrossProject) => emitSourceMaps in(cp.js, optJS)).value.map(_.js.base / "..") ++
+        filterSettingKeySeq(scalaJSProjects, (p: Project) => emitSourceMaps in(p, optJS)).value.map(_.base)
+    findSourcemapScalaFiles(projectBaseDirectories)
+  }
+
+  def onScalaJSProjectsCompile[A](scalaJSTasks: TaskKey[A]*): Initialize[Task[Seq[A]]] =
+    onScalaJSProjects(p => scalaJSTasks.map(t => t in(p, Compile)))
+
+  def onScalaJSProjects[A](getTasks: Project => Seq[TaskKey[A]]): Initialize[Task[Seq[A]]] = Def.taskDyn {
+    (scalaJSProjects.value ++ crossProjects.value.map(_.js)).foldLeft(Def.task[Seq[A]](Seq())) { (tasksAcc, jsProject) =>
+      Def.task {
+        val results = getTasks(jsProject).join.value
+        results ++ tasksAcc.value
       }
     }
+  }
 
-  lazy val buildJsSettings =
-    Seq(
-      persistLauncher := true,
-      persistLauncher in Test := false,
-      relativeSourceMaps := true
-    )
-
-  def copySourceMapsTask(base: File, jsBase: File, sharedSrcDir: Option[File]) = Def.task {
-    val scalaFiles = ((jsBase :: sharedSrcDir.toList) ** ("*.scala")).get
-    for (scalaFile <- scalaFiles) {
-      val scalaFilePath = scalaFile.getCanonicalPath.stripPrefix(base.getCanonicalPath)
-      val target = new File((classDirectory in Compile).value, scalaFilePath)
-      IO.copyFile(scalaFile, target)
+  def filterSettingKeySeq[A](settingKey: SettingKey[Seq[A]], filter: A => SettingKey[Boolean]): Initialize[Task[Seq[A]]] = Def.taskDyn {
+    settingKey.value.foldLeft(Def.task[Seq[A]](Seq())) { (tasksAcc, elt) =>
+      Def.task {
+        val filtered = if (filter(elt).value) Seq(elt) else Seq[A]()
+        filtered ++ tasksAcc.value
+      }
     }
   }
 
-  // The new 'start' command optimises the JS before calling 'playStart'
-  def startCommand(js: Project) = Command.args("start", "<port>") { (state: State, args: Seq[String]) =>
-    Project.runTask(fullOptJS in(js, Compile), state)
-    state.copy(remainingCommands = s"$PlayStart ${args.mkString(" ")}" +: state.remainingCommands)
+  def findSourcemapScalaFiles(projectDirectories: Seq[File]): Seq[PathMapping] = {
+    for {
+      base <- projectDirectories
+      scalaFile <- (base ** ("*.scala")).get
+    } yield {
+      val scalaFilePath = scalaFile.getCanonicalPath.stripPrefix((base / "..").getCanonicalPath).tail
+      (new File(scalaFile.getCanonicalPath), scalaFilePath)
+    }
   }
-  val playStartCommand = Command.make(PlayStart)(play.Play.playStartCommand.parser)
 }
