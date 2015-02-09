@@ -4,7 +4,7 @@ sbtPlugin := true
 
 name := "sbt-play-scalajs"
 
-version := "0.1.2-SNAPSHOT"
+version := "0.2.0"
 
 organization := "com.vmunier"
 
