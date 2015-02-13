@@ -5,7 +5,7 @@ import com.typesafe.sbt.web.SbtWeb.autoImport._
 import com.typesafe.sbt.web.pipeline.Pipeline
 import com.typesafe.sbt.web.{PathMapping, SbtWeb}
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-import org.scalajs.sbtplugin.cross.CrossProject
+import playscalajs.ScalaJSPlay.autoImport.sourceMapsDirectories
 import sbt.Def.Initialize
 import sbt.Keys._
 import sbt._
@@ -18,8 +18,6 @@ object PlayScalaJS extends AutoPlugin {
 
   object autoImport {
     val scalaJSProjects = Def.settingKey[Seq[Project]]("Scala.js projects attached to the play project")
-    val crossProjects = Def.settingKey[Seq[CrossProject]]("Scala.js cross projects containing scala files needed for Source Maps")
-
     val scalaJSDev = Def.taskKey[Seq[File]]("Apply fastOptJS and packageScalaJSLauncher on all Scala.js projects")
     val scalaJSProd = Def.taskKey[Pipeline.Stage]("Apply fullOptJS and packageScalaJSLauncher on all Scala.js projects")
   }
@@ -27,7 +25,6 @@ object PlayScalaJS extends AutoPlugin {
 
   override def projectSettings: Seq[Setting[_]] = Seq(
     scalaJSProjects := Seq(),
-    crossProjects := Seq(),
     scalaJSDev := scalaJSDevTask.value,
     sourceGenerators in Assets <+= scalaJSDev,
     scalaJSProd := scalaJSProdTask.value
@@ -51,18 +48,18 @@ object PlayScalaJS extends AutoPlugin {
     }
   }
 
-  def sourcemapScalaFiles(optJS: TaskKey[Attributed[File]]): Initialize[Task[Seq[PathMapping]]] = Def.task {
-    val projectBaseDirectories =
-      filterSettingKeySeq(crossProjects, (cp: CrossProject) => emitSourceMaps in(cp.js, optJS)).value.map(_.js.base / "..") ++
-        filterSettingKeySeq(scalaJSProjects, (p: Project) => emitSourceMaps in(p, optJS)).value.map(_.base)
-    findSourcemapScalaFiles(projectBaseDirectories)
+  def sourcemapScalaFiles(optJS: TaskKey[Attributed[File]]): Initialize[Task[Seq[PathMapping]]] = Def.taskDyn {
+    val sourceMapsBases = filterSettingKeySeq(scalaJSProjects, (p: Project) => emitSourceMaps in(p, optJS)).value.map(p => sourceMapsDirectories in p)
+    Def.task {
+      findSourcemapScalaFiles(sourceMapsBases.join.value.flatten)
+    }
   }
 
   def onScalaJSProjectsCompile[A](scalaJSTasks: TaskKey[A]*): Initialize[Task[Seq[A]]] =
     onScalaJSProjects(p => scalaJSTasks.map(t => t in(p, Compile)))
 
   def onScalaJSProjects[A](getTasks: Project => Seq[TaskKey[A]]): Initialize[Task[Seq[A]]] = Def.taskDyn {
-    (scalaJSProjects.value ++ crossProjects.value.map(_.js)).foldLeft(Def.task[Seq[A]](Seq())) { (tasksAcc, jsProject) =>
+    scalaJSProjects.value.foldLeft(Def.task[Seq[A]](Seq())) { (tasksAcc, jsProject) =>
       Def.task {
         val results = getTasks(jsProject).join.value
         results ++ tasksAcc.value
@@ -79,9 +76,9 @@ object PlayScalaJS extends AutoPlugin {
     }
   }
 
-  def findSourcemapScalaFiles(projectDirectories: Seq[File]): Seq[PathMapping] = {
+  def findSourcemapScalaFiles(sourceMapsBases: Seq[File]): Seq[PathMapping] = {
     for {
-      base <- projectDirectories
+      base <- sourceMapsBases
       scalaFile <- (base ** ("*.scala")).get
     } yield {
       val scalaFilePath = scalaFile.getCanonicalPath.stripPrefix((base / "..").getCanonicalPath).tail

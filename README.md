@@ -43,7 +43,6 @@ To see the plugin in action, you can clone and run this [simple example applicat
 ## Features
 
 - Use the `scalaJSProjects` setting key to attach several Scala.js projects to the Play! project
-- Use the `crossProjects` setting key to attach several [cross projects](http://www.scala-js.org/api/sbt-scalajs/0.6.0/#org.scalajs.sbtplugin.cross.CrossProject) to the Play! project
 - The `scalaJSProd` pipeline task generates the optimised javascript when running `start`, `stage` and `dist`
-- Source Maps is disabled in production by default.
-  To enable Source Maps in production, `(emitSourceMaps in fullOptJS) := true` should be set in the Scala.js projects.
+- Source Maps is _disabled in production_ by default to prevent your users from seeing the source files. But it can easily be enabled in production too by setting `(emitSourceMaps in fullOptJS) := true` in the Scala.js projects.
+- Use the `sourceMapsDirectories` setting on a Scala.js project to specify additional directories containing Scala files needed for Source Maps. You would typically use this setting when your Scala.js project depends on another Scala.js project.
