@@ -42,7 +42,8 @@ object PlayScalaJS extends AutoPlugin {
   }
 
   def scalaJSOutput(optJS: TaskKey[Attributed[File]]): Initialize[Task[Seq[PathMapping]]] = Def.task {
-    onScalaJSProjectsCompile(optJS, packageScalaJSLauncher).value.map(_.data).flatMap { f =>
+    val jsFiles = onScalaJSProjectsCompile(packageJSDependencies).value ++ onScalaJSProjectsCompile(optJS, packageScalaJSLauncher).value.map(_.data)
+    jsFiles.flatMap { f =>
       // Neither f nor the .map file do necessarily exist. e.g. packageScalaJSLauncher := false, emitSourceMaps := false
       Seq(f, new File(f.getCanonicalPath + ".map")).filter(_.exists).map(f => f -> f.getName)
     }
