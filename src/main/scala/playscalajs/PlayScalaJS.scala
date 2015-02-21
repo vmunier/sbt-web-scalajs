@@ -18,23 +18,25 @@ object PlayScalaJS extends AutoPlugin {
 
   object autoImport {
     val scalaJSProjects = Def.settingKey[Seq[Project]]("Scala.js projects attached to the play project")
-    val scalaJSDev = Def.taskKey[Seq[File]]("Apply fastOptJS and packageScalaJSLauncher on all Scala.js projects")
-    val scalaJSProd = Def.taskKey[Pipeline.Stage]("Apply fullOptJS and packageScalaJSLauncher on all Scala.js projects")
+    val scalaJSDev = Def.taskKey[Seq[PathMapping]]("Apply fastOptJS on all Scala.js projects")
+    val scalaJSProd = Def.taskKey[Pipeline.Stage]("Apply fullOptJS on all Scala.js projects")
   }
   import playscalajs.PlayScalaJS.autoImport._
 
   override def projectSettings: Seq[Setting[_]] = Seq(
     scalaJSProjects := Seq(),
     scalaJSDev := scalaJSDevTask.value,
-    sourceGenerators in Assets <+= scalaJSDev,
-    scalaJSProd := scalaJSProdTask.value
+    scalaJSProd := scalaJSProdTask.value,
+    // use resourceGenerators as a hook on Play run.
+    // return Seq() to not include the dev files in the final JAR.
+    resourceGenerators in Compile <+= scalaJSDev.map(_ => Seq[File]())
   )
 
-  def scalaJSDevTask(): Initialize[Task[Seq[File]]] = Def.task {
-    val sources = sourcemapScalaFiles(fastOptJS).value
-    val target = (WebKeys.public in Assets).value
-    IO.copy(sources.map { case (file, path) => file -> (target / path)})
-    scalaJSOutput(fastOptJS).value.map(_._1)
+  def scalaJSDevTask(): Initialize[Task[Seq[PathMapping]]] = Def.task {
+    val mappings = sourcemapScalaFiles(fastOptJS).value ++ scalaJSOutput(fastOptJS).value
+    val copies = mappings.map { case (file, path) => file -> ((WebKeys.public in Assets).value / path)}
+    IO.copy(copies)
+    mappings
   }
 
   def scalaJSProdTask(): Initialize[Task[Pipeline.Stage]] = Def.task { mappings: Seq[PathMapping] =>
