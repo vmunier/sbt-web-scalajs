@@ -27,16 +27,18 @@ object PlayScalaJS extends AutoPlugin {
     scalaJSProjects := Seq(),
     scalaJSDev := scalaJSDevTask.value,
     scalaJSProd := scalaJSProdTask.value,
-    // use resourceGenerators as a hook on Play run.
+    // use resourceGenerators in Compile as a hook on Play run.
     // return Seq() to not include the dev files in the final JAR.
-    resourceGenerators in Compile <+= scalaJSDev.map(_ => Seq[File]())
+    resourceGenerators in Compile <+= copyMappings(scalaJSDev, WebKeys.public in Assets).map(_ => Seq[File]()),
+    resourceGenerators in Test <+= copyMappings(scalaJSDev, WebKeys.public in TestAssets).map(_ => Seq[File]())
   )
 
+  def copyMappings(mappings: TaskKey[Seq[PathMapping]], target: SettingKey[File]) = Def.task {
+    IO.copy(mappings.value.map { case (file, path) => file -> target.value / path})
+  }
+
   def scalaJSDevTask(): Initialize[Task[Seq[PathMapping]]] = Def.task {
-    val mappings = sourcemapScalaFiles(fastOptJS).value ++ scalaJSOutput(fastOptJS).value
-    val copies = mappings.map { case (file, path) => file -> ((WebKeys.public in Assets).value / path)}
-    IO.copy(copies)
-    mappings
+    scalaJSOutput(fastOptJS).value ++ sourcemapScalaFiles(fastOptJS).value
   }
 
   def scalaJSProdTask(): Initialize[Task[Pipeline.Stage]] = Def.task { mappings: Seq[PathMapping] =>
