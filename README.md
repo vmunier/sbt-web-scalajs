@@ -38,6 +38,13 @@ lazy val jvm = project.settings(
 lazy val js = project.enablePlugins(ScalaJSPlugin, ScalaJSPlay)
 ```
 
+There are two auto-plugins in this plugin: ScalaJSPlay and PlayScalaJS. The workflow is the following:
+* ScalaJSPlay plugin is enabled in ScalaJS projects
+* PlayScalaJS is added to Play project. It is build on top of SbtWeb plugin and can also add itself automaticly to all projects that have SbtWeb enabled.
+* ScalaJS projects are collected in scalaJSProjects setting key of PlayProject
+* When compilation or testing takes place then PlayScalaJS plugins runs all required tasks on scalaJSProjects projects, copies the output to play assets and takes care about source maps.
+So, both
+
 To see the plugin in action, you can clone and run this [simple example application](https://github.com/vmunier/play-with-scalajs-example).
 
 ## Features

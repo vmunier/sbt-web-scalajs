@@ -5,6 +5,9 @@ import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import sbt.Keys._
 import sbt._
 
+/**
+ * Auto-plugin that is added to scalajs projects
+ */
 object ScalaJSPlay extends AutoPlugin {
 
   override def requires = ScalaJSPlugin
