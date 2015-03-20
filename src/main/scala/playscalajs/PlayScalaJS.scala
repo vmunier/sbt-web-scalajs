@@ -10,16 +10,23 @@ import sbt.Def.Initialize
 import sbt.Keys._
 import sbt._
 
+/**
+ * Auto-plugin that is added to Play project
+ */
 object PlayScalaJS extends AutoPlugin {
 
   override def requires = SbtWeb
 
+  /**
+   * This means that it will be added to all projects that have SbtWeb plugin enabled
+   * @return
+   */
   override def trigger = allRequirements
 
   object autoImport {
     val scalaJSProjects = Def.settingKey[Seq[Project]]("Scala.js projects attached to the play project")
     val scalaJSDev = Def.taskKey[Seq[PathMapping]]("Apply fastOptJS on all Scala.js projects")
-    val scalaJSTest = Def.taskKey[Seq[PathMapping]]("Apply fastOptJS on all Scala.js projects")
+    val scalaJSTest = Def.taskKey[Seq[PathMapping]]("Apply fastOptJS on all Scala.js projects during testing")
     val scalaJSProd = Def.taskKey[Pipeline.Stage]("Apply fullOptJS on all Scala.js projects")
 
   }
@@ -67,10 +74,8 @@ object PlayScalaJS extends AutoPlugin {
     }
   }
 
-
   def tasksInScope[A](scope:Configuration)(scalaJSTasks:TaskKey[A]*): Initialize[Task[Seq[A]]] =
     onScalaJSProjects(p => scalaJSTasks.map(t => t in(p, scope)))
-
 
   def onScalaJSProjects[A](getTasks: Project => Seq[TaskKey[A]]): Initialize[Task[Seq[A]]] = Def.taskDyn {
     scalaJSProjects.value.foldLeft(Def.task[Seq[A]](Seq())) { (tasksAcc, jsProject) =>
