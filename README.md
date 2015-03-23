@@ -20,7 +20,7 @@ addSbtPlugin("com.vmunier" % "sbt-play-scalajs" % "0.2.3")
 
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.7")
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.0")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.2")
 ```
 
 Lastly, write the following configuration in `build.sbt`:
