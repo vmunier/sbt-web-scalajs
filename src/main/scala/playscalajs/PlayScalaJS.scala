@@ -10,6 +10,9 @@ import sbt.Def.Initialize
 import sbt.Keys._
 import sbt._
 
+/**
+ * Auto-plugin added to Play projects
+ */
 object PlayScalaJS extends AutoPlugin {
 
   override def requires = SbtWeb
@@ -19,9 +22,8 @@ object PlayScalaJS extends AutoPlugin {
   object autoImport {
     val scalaJSProjects = Def.settingKey[Seq[Project]]("Scala.js projects attached to the play project")
     val scalaJSDev = Def.taskKey[Seq[PathMapping]]("Apply fastOptJS on all Scala.js projects")
-    val scalaJSTest = Def.taskKey[Seq[PathMapping]]("Apply fastOptJS on all Scala.js projects")
+    val scalaJSTest = Def.taskKey[Seq[PathMapping]]("Apply fastOptJS on all Scala.js projects during test")
     val scalaJSProd = Def.taskKey[Pipeline.Stage]("Apply fullOptJS on all Scala.js projects")
-
   }
   import playscalajs.PlayScalaJS.autoImport._
 
@@ -45,14 +47,14 @@ object PlayScalaJS extends AutoPlugin {
   }
 
   def scalaJSTestTask: Initialize[Task[Seq[PathMapping]]] = Def.task {
-    scalaJSOutput(Test)(fastOptJS).value ++ sourcemapScalaFiles(fastOptJS).value
+    scalaJSDevTask.value ++ scalaJSOutput(Test)(fastOptJS).value
   }
 
   def scalaJSProdTask(): Initialize[Task[Pipeline.Stage]] = Def.task { mappings: Seq[PathMapping] =>
     mappings ++ scalaJSOutput(Compile)(fullOptJS).value ++ sourcemapScalaFiles(fullOptJS).value
   }
 
-  def scalaJSOutput(scope:Configuration)(optJS: TaskKey[Attributed[File]]): Initialize[Task[Seq[PathMapping]]] = Def.task {
+  def scalaJSOutput(scope: Configuration)(optJS: TaskKey[Attributed[File]]): Initialize[Task[Seq[PathMapping]]] = Def.task {
     val jsFiles = tasksInScope(scope)(packageJSDependencies).value ++ tasksInScope(scope)(optJS, packageScalaJSLauncher).value.map(_.data)
     jsFiles.flatMap { f =>
       // Neither f nor the .map file do necessarily exist. e.g. packageScalaJSLauncher := false, emitSourceMaps := false
@@ -67,10 +69,8 @@ object PlayScalaJS extends AutoPlugin {
     }
   }
 
-
-  def tasksInScope[A](scope:Configuration)(scalaJSTasks:TaskKey[A]*): Initialize[Task[Seq[A]]] =
+  def tasksInScope[A](scope: Configuration)(scalaJSTasks: TaskKey[A]*): Initialize[Task[Seq[A]]] =
     onScalaJSProjects(p => scalaJSTasks.map(t => t in(p, scope)))
-
 
   def onScalaJSProjects[A](getTasks: Project => Seq[TaskKey[A]]): Initialize[Task[Seq[A]]] = Def.taskDyn {
     scalaJSProjects.value.foldLeft(Def.task[Seq[A]](Seq())) { (tasksAcc, jsProject) =>
