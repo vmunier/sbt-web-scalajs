@@ -43,19 +43,27 @@ object PlayScalaJS extends AutoPlugin {
   }
 
   def scalaJSDevTask: Initialize[Task[Seq[PathMapping]]] = Def.task {
-    scalaJSOutput(Compile)(fastOptJS).value ++ sourcemapScalaFiles(fastOptJS).value
+    devFiles(Compile).value ++ sourcemapScalaFiles(fastOptJS).value
   }
 
   def scalaJSTestTask: Initialize[Task[Seq[PathMapping]]] = Def.task {
-    scalaJSDevTask.value ++ scalaJSOutput(Test)(fastOptJS).value
+    scalaJSDevTask.value ++ devFiles(Test).value
   }
 
-  def scalaJSProdTask(): Initialize[Task[Pipeline.Stage]] = Def.task { mappings: Seq[PathMapping] =>
-    mappings ++ scalaJSOutput(Compile)(fullOptJS).value ++ sourcemapScalaFiles(fullOptJS).value
+  def scalaJSProdTask: Initialize[Task[Pipeline.Stage]] = Def.task { mappings: Seq[PathMapping] =>
+    mappings ++ prodFiles(Compile).value ++ sourcemapScalaFiles(fullOptJS).value
   }
 
-  def scalaJSOutput(scope: Configuration)(optJS: TaskKey[Attributed[File]]): Initialize[Task[Seq[PathMapping]]] = Def.task {
-    val jsFiles = tasksInScope(scope)(packageJSDependencies).value ++ tasksInScope(scope)(optJS, packageScalaJSLauncher).value.map(_.data)
+  def devFiles(scope: Configuration): Initialize[Task[Seq[PathMapping]]] = {
+    scalaJSOutput(scope)(Seq(packageJSDependencies), Seq(fastOptJS, packageScalaJSLauncher))
+  }
+
+  def prodFiles(scope: Configuration): Initialize[Task[Seq[PathMapping]]] = {
+    scalaJSOutput(scope)(Seq(packageJSDependencies, packageMinifiedJSDependencies), Seq(fullOptJS, packageScalaJSLauncher))
+  }
+
+  def scalaJSOutput(scope: Configuration)(fileTKs: Seq[TaskKey[File]], attributedTKs: Seq[TaskKey[Attributed[File]]]): Initialize[Task[Seq[PathMapping]]] = Def.task {
+    val jsFiles = tasksInScope(scope)(fileTKs).value ++ tasksInScope(scope)(attributedTKs).value.map(_.data)
     jsFiles.flatMap { f =>
       // Neither f nor the .map file do necessarily exist. e.g. packageScalaJSLauncher := false, emitSourceMaps := false
       Seq(f, new File(f.getCanonicalPath + ".map")).filter(_.exists).map(f => f -> f.getName)
@@ -69,7 +77,7 @@ object PlayScalaJS extends AutoPlugin {
     }
   }
 
-  def tasksInScope[A](scope: Configuration)(scalaJSTasks: TaskKey[A]*): Initialize[Task[Seq[A]]] =
+  def tasksInScope[A](scope: Configuration)(scalaJSTasks: Seq[TaskKey[A]]): Initialize[Task[Seq[A]]] =
     onScalaJSProjects(p => scalaJSTasks.map(t => t in(p, scope)))
 
   def onScalaJSProjects[A](getTasks: Project => Seq[TaskKey[A]]): Initialize[Task[Seq[A]]] = Def.taskDyn {
