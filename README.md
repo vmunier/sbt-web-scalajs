@@ -16,9 +16,9 @@ sbt.version=0.13.5
 
 Add the sbt plugin to the `project/plugins.sbt` file along with Play! and Scala.js:
 ```
-addSbtPlugin("com.vmunier" % "sbt-play-scalajs" % "0.2.4")
+addSbtPlugin("com.vmunier" % "sbt-play-scalajs" % "0.2.5")
 
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.7")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.9")
 
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.2")
 ```
