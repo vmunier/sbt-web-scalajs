@@ -8,6 +8,7 @@ import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import playscalajs.ScalaJSPlay.autoImport.sourceMapsDirectories
 import sbt.Def.Initialize
 import sbt.Keys._
+import sbt.Project.projectToRef
 import sbt._
 
 /**
@@ -24,6 +25,7 @@ object PlayScalaJS extends AutoPlugin {
     val scalaJSDev = Def.taskKey[Seq[PathMapping]]("Apply fastOptJS on all Scala.js projects")
     val scalaJSTest = Def.taskKey[Seq[PathMapping]]("Apply fastOptJS on all Scala.js projects during test")
     val scalaJSProd = Def.taskKey[Pipeline.Stage]("Apply fullOptJS on all Scala.js projects")
+    val monitoredScalaJSDirectories = Def.settingKey[Seq[File]]("Scala.js directories monitored by Play run")
   }
   import playscalajs.PlayScalaJS.autoImport._
 
@@ -35,7 +37,9 @@ object PlayScalaJS extends AutoPlugin {
     // use resourceGenerators in Compile as a hook on Play run.
     // return Seq() to not include the dev files in the final JAR.
     resourceGenerators in Compile <+= copyMappings(scalaJSDev, WebKeys.public in Assets).map(_ => Seq[File]()),
-    resourceGenerators in Test <+= copyMappings(scalaJSTest, WebKeys.public in TestAssets).map(_ => Seq[File]())
+    resourceGenerators in Test <+= copyMappings(scalaJSTest, WebKeys.public in TestAssets).map(_ => Seq[File]()),
+    monitoredScalaJSDirectories := monitoredScalaJSDirectoriesSetting.value,
+    unmanagedSourceDirectories in Assets ++= monitoredScalaJSDirectories.value
   )
 
   def copyMappings(mappings: TaskKey[Seq[PathMapping]], target: SettingKey[File]) = Def.task {
@@ -52,6 +56,13 @@ object PlayScalaJS extends AutoPlugin {
 
   def scalaJSProdTask: Initialize[Task[Pipeline.Stage]] = Def.task { mappings: Seq[PathMapping] =>
     mappings ++ prodFiles(Compile).value ++ sourcemapScalaFiles(fullOptJS).value
+  }
+
+  def monitoredScalaJSDirectoriesSetting: Initialize[Seq[File]] = Def.settingDyn {
+    val scopeFilter = ScopeFilter(inProjects(scalaJSProjects.value.map(projectToRef): _*), inConfigurations(Compile))
+    Def.setting {
+      unmanagedSourceDirectories.all(scopeFilter).value.flatten
+    }
   }
 
   def devFiles(scope: Configuration): Initialize[Task[Seq[PathMapping]]] = {
