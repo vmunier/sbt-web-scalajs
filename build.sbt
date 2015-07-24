@@ -1,5 +1,3 @@
-import bintray.Keys._
-
 sbtPlugin := true
 
 name := "sbt-play-scalajs"
@@ -10,10 +8,9 @@ organization := "com.vmunier"
 
 homepage := Some(url("https://github.com/vmunier/sbt-play-scalajs"))
 
-resolvers += "Typesafe repository" at "https://repo.typesafe.com/typesafe/releases/"
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.4")
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.3")
-addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.2.0")
+addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.2.2")
 
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
 
@@ -31,6 +28,7 @@ pomExtra := (
   </developers>
 )
 publishMavenStyle := false
-bintrayPublishSettings
-repository in bintray := "scalajs"
-bintrayOrganization in bintray := None
+
+bintrayRepository  := "scalajs"
+
+bintrayOrganization := None
