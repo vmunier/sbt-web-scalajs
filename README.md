@@ -4,7 +4,7 @@
 [![Download](https://api.bintray.com/packages/vmunier/scalajs/sbt-play-scalajs/images/download.svg) ](https://bintray.com/vmunier/scalajs/sbt-play-scalajs/_latestVersion)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/vmunier/sbt-play-scalajs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-sbt-play-scalajs is a SBT plugin which allows you to use Scala.js along with Play Framework.
+sbt-play-scalajs is a SBT plugin which allows you to use Scala.js along with Play Framework or in SbtWeb project.
 It uses the [sbt-web](https://github.com/sbt/sbt-web) and [scala-js](https://github.com/scala-js/scala-js) plugins.
 
 ## Setup
@@ -20,7 +20,7 @@ addSbtPlugin("com.vmunier" % "sbt-play-scalajs" % "0.2.6")
 
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.4.0")
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.3")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.4")
 ```
 
 Lastly, write the following configuration in `build.sbt`:
@@ -31,7 +31,9 @@ lazy val jsProjects = Seq(js)
 
 lazy val jvm = project.settings(
   scalaJSProjects := jsProjects,
-  pipelineStages := Seq(scalaJSProd)).
+  (pipelineStages in Assets) := Seq(scalaJSDev), //for development    
+  pipelineStages := Seq(scalaJSProd) //for production
+  ).
   enablePlugins(PlayScala).
   aggregate(jsProjects.map(projectToRef): _*)
 
@@ -49,6 +51,7 @@ To see the plugin in action, you can clone and run this [simple example applicat
 ## Features
 
 - Use the `scalaJSProjects` setting key to attach several Scala.js projects to the Play! project
+- The `scalaJSDev` pipeline task generates the fast-optimised javascript when running `run`
 - The `scalaJSProd` pipeline task generates the optimised javascript when running `start`, `stage` and `dist`
 - Source Maps is _disabled in production_ by default to prevent your users from seeing the source files. But it can easily be enabled in production too by setting `(emitSourceMaps in fullOptJS) := true` in the Scala.js projects.
 - Use the `sourceMapsDirectories` setting on a Scala.js project to specify additional directories containing Scala files needed for Source Maps. You would typically use this setting when your Scala.js project depends on another Scala.js project.

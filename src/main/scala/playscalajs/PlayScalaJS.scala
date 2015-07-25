@@ -21,9 +21,9 @@ object PlayScalaJS extends AutoPlugin {
   override def trigger = allRequirements
 
   object autoImport {
-    val scalaJSProjects = Def.settingKey[Seq[Project]]("Scala.js projects attached to the play project")
-    val scalaJSDev = Def.taskKey[Seq[PathMapping]]("Apply fastOptJS on all Scala.js projects")
-    val scalaJSTest = Def.taskKey[Seq[PathMapping]]("Apply fastOptJS on all Scala.js projects during test")
+    val scalaJSProjects = Def.settingKey[Seq[Project]]("Scala.js projects attached to scala-jvm project with SbtWeb")
+    val scalaJSDev  = Def.taskKey[Pipeline.Stage]("Apply fastOptJS on all Scala.js projects")
+    val scalaJSTest = Def.taskKey[Pipeline.Stage]("Apply fastOptJS on all Scala.js projects during test")
     val scalaJSProd = Def.taskKey[Pipeline.Stage]("Apply fullOptJS on all Scala.js projects")
     val monitoredScalaJSDirectories = Def.settingKey[Seq[File]]("Scala.js directories monitored by Play run")
   }
@@ -34,10 +34,10 @@ object PlayScalaJS extends AutoPlugin {
     scalaJSDev := scalaJSDevTask.value,
     scalaJSTest := scalaJSTestTask.value,
     scalaJSProd := scalaJSProdTask.value,
-    // use resourceGenerators in Compile as a hook on Play run.
-    // return Seq() to not include the dev files in the final JAR.
-    resourceGenerators in Compile <+= copyMappings(scalaJSDev, WebKeys.public in Assets).map(_ => Seq[File]()),
-    resourceGenerators in Test <+= copyMappings(scalaJSTest, WebKeys.public in TestAssets).map(_ => Seq[File]()),
+    /** to package ScalaJS add the following to your ScalaJVM project configuration:
+      * 	pipelineStages in Assets := Seq(scalaJSDev) //for development
+      * 	pipelineStages in Assets := Seq(scalaJSProd) //for start
+      */
     monitoredScalaJSDirectories := monitoredScalaJSDirectoriesSetting.value,
     unmanagedSourceDirectories in Assets ++= monitoredScalaJSDirectories.value
   )
@@ -46,12 +46,12 @@ object PlayScalaJS extends AutoPlugin {
     IO.copy(mappings.value.map { case (file, path) => file -> target.value / path})
   }
 
-  def scalaJSDevTask: Initialize[Task[Seq[PathMapping]]] = Def.task {
-    devFiles(Compile).value ++ sourcemapScalaFiles(fastOptJS).value
+  def scalaJSDevTask: Initialize[Task[Pipeline.Stage]] = Def.task { mappings: Seq[PathMapping] =>
+    mappings ++devFiles(Compile).value ++ sourcemapScalaFiles(fastOptJS).value
   }
 
-  def scalaJSTestTask: Initialize[Task[Seq[PathMapping]]] = Def.task {
-    scalaJSDevTask.value ++ devFiles(Test).value
+  def scalaJSTestTask: Initialize[Task[Pipeline.Stage]] = Def.task { mappings: Seq[PathMapping] =>
+    mappings ++devFiles(Compile).value ++ sourcemapScalaFiles(fastOptJS).value ++ devFiles(Test).value
   }
 
   def scalaJSProdTask: Initialize[Task[Pipeline.Stage]] = Def.task { mappings: Seq[PathMapping] =>
