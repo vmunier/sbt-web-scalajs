@@ -34,12 +34,11 @@ object PlayScalaJS extends AutoPlugin {
     scalaJSDev := scalaJSDevTask.value,
     scalaJSTest := scalaJSTestTask.value,
     scalaJSProd := scalaJSProdTask.value,
-    // use resourceGenerators in Compile as a hook on Play run.
     // return Seq() to not include the dev files in the final JAR.
     resourceGenerators in Compile <+= copyMappings(scalaJSDev, WebKeys.public in Assets).map(_ => Seq[File]()),
     resourceGenerators in Test <+= copyMappings(scalaJSTest, WebKeys.public in TestAssets).map(_ => Seq[File]()),
     monitoredScalaJSDirectories := monitoredScalaJSDirectoriesSetting.value,
-    unmanagedSourceDirectories in Assets ++= monitoredScalaJSDirectories.value
+    unmanagedResourceDirectories in Compile ++= monitoredScalaJSDirectories.value
   )
 
   def copyMappings(mappings: TaskKey[Seq[PathMapping]], target: SettingKey[File]) = Def.task {
