@@ -13,7 +13,7 @@ object ScalaJSPlay extends AutoPlugin {
   override def requires = ScalaJSPlugin
 
   object autoImport {
-    val mapSourceURI = Def.settingKey[String]("Scalac option value to rewrite source URIs inside Scala.js Source Maps")
+    val mapSourceURI = Def.settingKey[Option[String]]("Scalac option value to rewrite source URIs inside Scala.js Source Maps")
     val sourceMapsBase = Def.settingKey[File]("Source Maps base directory")
     val sourceMapsDirectories = Def.settingKey[Seq[File]]("Directories containing the Scala files needed by Source Maps")
   }
@@ -26,8 +26,8 @@ object ScalaJSPlay extends AutoPlugin {
     mapSourceURI := {
       val oldPrefix = (sourceMapsBase.value / "..").getCanonicalFile.toURI
       val newPrefix = ""
-      s"-P:scalajs:mapSourceURI:$oldPrefix->$newPrefix"
+      Some(s"-P:scalajs:mapSourceURI:$oldPrefix->$newPrefix")
     },
-    scalacOptions += mapSourceURI.value
+    scalacOptions ++= mapSourceURI.value.toSeq
   )
 }
