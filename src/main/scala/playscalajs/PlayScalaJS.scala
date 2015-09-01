@@ -72,11 +72,15 @@ object PlayScalaJS extends AutoPlugin {
     scalaJSOutput(scope)(Seq(packageJSDependencies, packageMinifiedJSDependencies), Seq(fullOptJS, packageScalaJSLauncher))
   }
 
-  def scalaJSOutput(scope: Configuration)(fileTKs: Seq[TaskKey[File]], attributedTKs: Seq[TaskKey[Attributed[File]]]): Initialize[Task[Seq[PathMapping]]] = Def.task {
-    val jsFiles = tasksInScope(scope)(fileTKs).value ++ tasksInScope(scope)(attributedTKs).value.map(_.data)
-    jsFiles.flatMap { f =>
-      // Neither f nor the .map file do necessarily exist. e.g. packageScalaJSLauncher := false, emitSourceMaps := false
-      Seq(f, new File(f.getCanonicalPath + ".map")).filter(_.exists).map(f => f -> f.getName)
+  def scalaJSOutput(scope: Configuration)(fileTKs: Seq[TaskKey[File]], attributedTKs: Seq[TaskKey[Attributed[File]]]): Initialize[Task[Seq[PathMapping]]] = Def.taskDyn {
+    val filter = ScopeFilter(inProjects(scalaJSProjects.value.map(projectToRef): _*), inConfigurations(scope))
+
+    Def.task {
+      val jsFiles = fileTKs.join.all(filter).value.flatten ++ attributedTKs.join.all(filter).value.flatten.map(_.data)
+      jsFiles.flatMap { f =>
+        // Neither f nor the .map file do necessarily exist. e.g. packageScalaJSLauncher := false, emitSourceMaps := false
+        Seq(f, new File(f.getCanonicalPath + ".map")).filter(_.exists).map(f => f -> f.getName)
+      }
     }
   }
 
@@ -84,18 +88,6 @@ object PlayScalaJS extends AutoPlugin {
     val sourceMapsBases = filterSettingKeySeq(scalaJSProjects, (p: Project) => emitSourceMaps in(p, optJS)).value.map(p => sourceMapsDirectories in p)
     Def.task {
       findSourcemapScalaFiles(sourceMapsBases.join.value.flatten)
-    }
-  }
-
-  def tasksInScope[A](scope: Configuration)(scalaJSTasks: Seq[TaskKey[A]]): Initialize[Task[Seq[A]]] =
-    onScalaJSProjects(p => scalaJSTasks.map(t => t in(p, scope)))
-
-  def onScalaJSProjects[A](getTasks: Project => Seq[TaskKey[A]]): Initialize[Task[Seq[A]]] = Def.taskDyn {
-    scalaJSProjects.value.foldLeft(Def.task[Seq[A]](Seq())) { (tasksAcc, jsProject) =>
-      Def.task {
-        val results = getTasks(jsProject).join.value
-        results ++ tasksAcc.value
-      }
     }
   }
 
