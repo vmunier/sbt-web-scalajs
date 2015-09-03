@@ -41,6 +41,8 @@ object PlayScalaJS extends AutoPlugin {
     unmanagedResourceDirectories in Compile ++= monitoredScalaJSDirectories.value
   )
 
+  implicit def projectsToRefs(projects: Seq[Project]): Seq[ProjectReference] = projects.map(projectToRef)
+
   def copyMappings(mappings: TaskKey[Seq[PathMapping]], target: SettingKey[File]) = Def.task {
     IO.copy(mappings.value.map { case (file, path) => file -> target.value / path})
   }
@@ -58,7 +60,7 @@ object PlayScalaJS extends AutoPlugin {
   }
 
   def monitoredScalaJSDirectoriesSetting: Initialize[Seq[File]] = Def.settingDyn {
-    val scopeFilter = ScopeFilter(inProjects(scalaJSProjects.value.map(projectToRef): _*), inConfigurations(Compile))
+    val scopeFilter = ScopeFilter(inProjects(scalaJSProjects.value: _*), inConfigurations(Compile))
     Def.setting {
       unmanagedSourceDirectories.all(scopeFilter).value.flatten
     }
@@ -73,7 +75,7 @@ object PlayScalaJS extends AutoPlugin {
   }
 
   def scalaJSOutput(scope: Configuration)(fileTKs: Seq[TaskKey[File]], attributedTKs: Seq[TaskKey[Attributed[File]]]): Initialize[Task[Seq[PathMapping]]] = Def.taskDyn {
-    val filter = ScopeFilter(inProjects(scalaJSProjects.value.map(projectToRef): _*), inConfigurations(scope))
+    val filter = ScopeFilter(inProjects(scalaJSProjects.value: _*), inConfigurations(scope))
 
     Def.task {
       val jsFiles = fileTKs.join.all(filter).value.flatten ++ attributedTKs.join.all(filter).value.flatten.map(_.data)
