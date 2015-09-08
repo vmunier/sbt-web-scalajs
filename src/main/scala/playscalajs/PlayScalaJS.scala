@@ -26,6 +26,7 @@ object PlayScalaJS extends AutoPlugin {
     val scalaJSTest = Def.taskKey[Seq[PathMapping]]("Apply fastOptJS on all Scala.js projects during test")
     val scalaJSProd = Def.taskKey[Pipeline.Stage]("Apply fullOptJS on all Scala.js projects")
     val monitoredScalaJSDirectories = Def.settingKey[Seq[File]]("Scala.js directories monitored by Play run")
+    val scalaJSDirectoriesFilter = Def.settingKey[FileFilter]("Filter that accepts all the monitored Scala.js directories")
   }
   import playscalajs.PlayScalaJS.autoImport._
 
@@ -38,7 +39,20 @@ object PlayScalaJS extends AutoPlugin {
     resourceGenerators in Compile <+= copyMappings(scalaJSDev, WebKeys.public in Assets).map(_ => Seq[File]()),
     resourceGenerators in Test <+= copyMappings(scalaJSTest, WebKeys.public in TestAssets).map(_ => Seq[File]()),
     monitoredScalaJSDirectories := monitoredScalaJSDirectoriesSetting.value,
-    unmanagedResourceDirectories in Compile ++= monitoredScalaJSDirectories.value
+
+    /**
+     * The Scala.js directories are added to unmanagedSourceDirectories to be part of the directories monitored by Play run.
+     * @see playMonitoredFilesTask in Play, which creates the list of monitored directories https://github.com/playframework/playframework/blob/f5535aa08d639bae0f1734ebe3bc9aad7ce0f487/framework/src/sbt-plugin/src/main/scala/play/sbt/PlayCommands.scala#L85
+     */
+    unmanagedSourceDirectories in Assets ++= monitoredScalaJSDirectories.value,
+
+    /**
+     * excludeFilter is updated to prevent SbtWeb from adding any descendant files from the Scala.js directories into the packaged jar.
+     * Dev and Prod tasks of this plugin select the Scala files that should be added to the packaged jar.
+     * @see where excludeFilter is used in SbtWeb https://github.com/sbt/sbt-web/blob/cb7585f44fc1a00edca085a361f88cc1bf5ddd13/src/main/scala/com/typesafe/sbt/web/SbtWeb.scala#L245
+     */
+    excludeFilter in Assets := (excludeFilter in Assets).value || scalaJSDirectoriesFilter.value,
+    scalaJSDirectoriesFilter := monitoredScalaJSDirectories.value.map(scalaJSDir => new SimpleFileFilter(f => scalaJSDir.getCanonicalPath == f.getCanonicalPath)).foldLeft(NothingFilter: FileFilter)(_ || _)
   )
 
   implicit class ProjectsImplicits(projects: Seq[Project]) {
@@ -46,7 +60,7 @@ object PlayScalaJS extends AutoPlugin {
   }
 
   def copyMappings(mappings: TaskKey[Seq[PathMapping]], target: SettingKey[File]) = Def.task {
-    IO.copy(mappings.value.map { case (file, path) => file -> target.value / path})
+    IO.copy(mappings.value.map { case (file, path) => file -> target.value / path })
   }
 
   def scalaJSDevTask: Initialize[Task[Seq[PathMapping]]] = Def.task {
