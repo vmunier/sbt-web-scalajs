@@ -76,9 +76,12 @@ object PlayScalaJS extends AutoPlugin {
   }
 
   def monitoredScalaJSDirectoriesSetting: Initialize[Seq[File]] = Def.settingDyn {
-    val scopeFilter = ScopeFilter(inProjects(scalaJSProjects.value.toRefs: _*), inConfigurations(Compile))
-    Def.setting {
-      unmanagedSourceDirectories.all(scopeFilter).value.flatten
+    val allScalaJSProjects = transitiveDependencies(scalaJSProjects.value)
+    Def.settingDyn {
+      val scopeFilter = ScopeFilter(inProjects(allScalaJSProjects.value: _*), inConfigurations(Compile))
+      Def.setting {
+        unmanagedSourceDirectories.all(scopeFilter).value.flatten
+      }
     }
   }
 
@@ -100,6 +103,12 @@ object PlayScalaJS extends AutoPlugin {
         Seq(f, new File(f.getCanonicalPath + ".map")).filter(_.exists).map(f => f -> f.getName)
       }
     }
+  }
+
+  def transitiveDependencies[A](projects: Seq[Project]): Initialize[Seq[ProjectRef]] = Def.setting {
+    projects.map(project =>
+      thisProjectRef.all(ScopeFilter(inDependencies(project)))
+    ).join.value.flatten
   }
 
   def sourcemapScalaFiles(optJS: TaskKey[Attributed[File]]): Initialize[Task[Seq[PathMapping]]] = Def.taskDyn {
