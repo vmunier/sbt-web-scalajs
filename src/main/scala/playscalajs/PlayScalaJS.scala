@@ -5,7 +5,6 @@ import com.typesafe.sbt.web.SbtWeb.autoImport._
 import com.typesafe.sbt.web.pipeline.Pipeline
 import com.typesafe.sbt.web.{PathMapping, SbtWeb}
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-import playscalajs.ScalaJSPlay.autoImport.sourceMapsDirectories
 import sbt.Def.Initialize
 import sbt.Keys._
 import sbt.Project.projectToRef
@@ -76,12 +75,13 @@ object PlayScalaJS extends AutoPlugin {
   }
 
   def monitoredScalaJSDirectoriesSetting: Initialize[Seq[File]] = Def.settingDyn {
-    val allScalaJSProjects = transitiveDependencies(scalaJSProjects.value)
-    Def.settingDyn {
-      val scopeFilter = ScopeFilter(inProjects(allScalaJSProjects.value: _*), inConfigurations(Compile))
-      Def.setting {
-        unmanagedSourceDirectories.all(scopeFilter).value.flatten
-      }
+    onProjects(transitiveDependencies(scalaJSProjects.value), unmanagedSourceDirectories)
+  }
+
+  def onProjects[A](projects: Initialize[Seq[ProjectRef]], action: Initialize[Seq[A]]): Initialize[Seq[A]] = Def.settingDyn {
+    val scopeFilter = ScopeFilter(inProjects(projects.value: _*), inConfigurations(Compile))
+    Def.setting {
+      action.all(scopeFilter).value.flatten
     }
   }
 
@@ -112,28 +112,26 @@ object PlayScalaJS extends AutoPlugin {
   }
 
   def sourcemapScalaFiles(optJS: TaskKey[Attributed[File]]): Initialize[Task[Seq[PathMapping]]] = Def.taskDyn {
-    val sourceMapsBases = filterSettingKeySeq(scalaJSProjects, (p: Project) => emitSourceMaps in(p, optJS)).value.map(p => sourceMapsDirectories in p)
+    val projectsWithSourceMaps = filterInitializeSeq(scalaJSProjects, (p: Project) => emitSourceMaps in(p, optJS)).value
     Def.task {
-      findSourcemapScalaFiles(sourceMapsBases.join.value.flatten)
-    }
-  }
+      val sourceDirectories = onProjects(transitiveDependencies(projectsWithSourceMaps), unmanagedSourceDirectories).value
 
-  def filterSettingKeySeq[A](settingKey: SettingKey[Seq[A]], filter: A => SettingKey[Boolean]): Initialize[Task[Seq[A]]] = Def.taskDyn {
-    settingKey.value.foldLeft(Def.task[Seq[A]](Seq())) { (tasksAcc, elt) =>
-      Def.task {
-        val filtered = if (filter(elt).value) Seq(elt) else Seq[A]()
-        filtered ++ tasksAcc.value
+      for {
+        (sourceDir, hashedPath) <- SourceMappings.fromFiles(sourceDirectories)
+        scalaFiles = (sourceDir ** ("*.scala")).get
+        (scalaFile, subPath) <- scalaFiles pair relativeTo(sourceDir)
+      } yield {
+        (new File(scalaFile.getCanonicalPath), s"$hashedPath/$subPath")
       }
     }
   }
 
-  def findSourcemapScalaFiles(sourceMapsBases: Seq[File]): Seq[PathMapping] = {
-    for {
-      base <- sourceMapsBases
-      scalaFile <- (base ** ("*.scala")).get
-    } yield {
-      val scalaFilePath = scalaFile.getCanonicalPath.stripPrefix((base / "..").getCanonicalPath).tail
-      (new File(scalaFile.getCanonicalPath), scalaFilePath)
+  def filterInitializeSeq[A](settingKey: Initialize[Seq[A]], filter: A => Initialize[Boolean]): Initialize[Seq[A]] = Def.settingDyn {
+    settingKey.value.foldLeft(Def.setting[Seq[A]](Seq())) { (tasksAcc, elt) =>
+      Def.setting {
+        val filtered = if (filter(elt).value) Seq(elt) else Seq[A]()
+        filtered ++ tasksAcc.value
+      }
     }
   }
 }
