@@ -18,9 +18,9 @@ Add the sbt plugin to the `project/plugins.sbt` file along with Play! and Scala.
 ```
 addSbtPlugin("com.vmunier" % "sbt-play-scalajs" % "0.2.7")
 
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.4.2")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.4.3")
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.4")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.5")
 ```
 
 Lastly, write the following configuration in `build.sbt`:
@@ -51,4 +51,3 @@ To see the plugin in action, you can clone and run this [simple example applicat
 - Use the `scalaJSProjects` setting key to attach several Scala.js projects to the Play! project
 - The `scalaJSProd` pipeline task generates the optimised javascript when running `start`, `stage` and `dist`
 - Source Maps is _disabled in production_ by default to prevent your users from seeing the source files. But it can easily be enabled in production too by setting `(emitSourceMaps in fullOptJS) := true` in the Scala.js projects.
-- Use the `sourceMapsDirectories` setting on a Scala.js project to specify additional directories containing Scala files needed for Source Maps. You would typically use this setting when your Scala.js project depends on another Scala.js project.
