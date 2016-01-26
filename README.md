@@ -18,9 +18,9 @@ Add the sbt plugin to the `project/plugins.sbt` file along with Play! and Scala.
 ```
 addSbtPlugin("com.vmunier" % "sbt-play-scalajs" % "0.2.8")
 
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.4.3")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.4.6")
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.5")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.6")
 ```
 
 Lastly, write the following configuration in `build.sbt`:
