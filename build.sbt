@@ -10,7 +10,7 @@ homepage := Some(url("https://github.com/vmunier/sbt-play-scalajs"))
 
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.7")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.2.2")
+addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.2.3")
 
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
 
