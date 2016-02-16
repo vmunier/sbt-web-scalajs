@@ -23,7 +23,7 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.4.6")
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.7")
 ```
 
-Lastly, write the following configuration in `build.sbt`:
+Lastly, put the following configuration in `build.sbt`:
 ```
 import sbt.Project.projectToRef
 
@@ -40,7 +40,7 @@ lazy val js = project.enablePlugins(ScalaJSPlugin, ScalaJSPlay)
 
 There are two auto-plugins: `ScalaJSPlay` and `PlayScalaJS`. The workflow is the following:
 * `ScalaJSPlay` plugin is enabled in Scala.js projects.
-* `PlayScalaJS` is added to Play project. It is build on top of SbtWeb plugin and can also add itself automaticly to all projects that have SbtWeb enabled.
+* `PlayScalaJS` is added to the Play project. It is build on top of the SbtWeb plugin and can also add itself automatically to all projects that have SbtWeb enabled.
 * Scala.js projects are collected in the `scalaJSProjects` setting key of the Play project.
 * When compilation or testing takes place, then the `PlayScalaJS` plugin runs all required tasks on `scalaJSProjects` projects, copies the output to Play assets and takes care about source maps.
 
@@ -49,5 +49,5 @@ To see the plugin in action, you can clone and run this [simple example applicat
 ## Features
 
 - Use the `scalaJSProjects` setting key to attach several Scala.js projects to the Play! project
-- The `scalaJSProd` pipeline task generates the optimised javascript when running `start`, `stage` and `dist`
+- The `scalaJSProd` pipeline task generates the optimised JavaScript when running `start`, `stage` and `dist`
 - Source Maps is _disabled in production_ by default to prevent your users from seeing the source files. But it can easily be enabled in production too by setting `(emitSourceMaps in fullOptJS) := true` in the Scala.js projects.
