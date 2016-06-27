@@ -8,7 +8,7 @@ organization := "com.vmunier"
 
 homepage := Some(url("https://github.com/vmunier/sbt-play-scalajs"))
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.7")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.10")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.2.3")
 
