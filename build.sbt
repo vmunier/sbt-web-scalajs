@@ -1,23 +1,31 @@
 sbtPlugin := true
 
-name := "sbt-play-scalajs"
+name := "sbt-web-scalajs"
 
 version := "0.3.2-SNAPSHOT"
 
 organization := "com.vmunier"
 
-homepage := Some(url("https://github.com/vmunier/sbt-play-scalajs"))
+homepage := Some(url("https://github.com/vmunier/sbt-web-scalajs"))
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.10")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.12")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.2.3")
+addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.3.0")
 
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
 
+scalacOptions ++= Seq(
+  "-deprecation",
+  "-encoding", "utf8",
+  "-feature",
+  "-unchecked",
+  "-Xlint"
+)
+
 pomExtra := (
   <scm>
-    <url>git@github.com:vmunier/sbt-play-scalajs.git</url>
-    <connection>scm:git:git@github.com:vmunier/sbt-play-scalajs.git</connection>
+    <url>git@github.com:vmunier/sbt-web-scalajs.git</url>
+    <connection>scm:git:git@github.com:vmunier/sbt-web-scalajs.git</connection>
   </scm>
   <developers>
     <developer>
@@ -28,7 +36,5 @@ pomExtra := (
   </developers>
 )
 publishMavenStyle := false
-
 bintrayRepository  := "scalajs"
-
 bintrayOrganization := None
