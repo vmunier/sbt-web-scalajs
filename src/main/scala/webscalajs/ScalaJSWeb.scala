@@ -1,4 +1,4 @@
-package playscalajs
+package webscalajs
 
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
@@ -6,9 +6,9 @@ import sbt.Keys._
 import sbt._
 
 /**
- * Auto-plugin added to Scala.js projects
- */
-object ScalaJSPlay extends AutoPlugin {
+  * Auto-plugin to be added to Scala.js projects
+  */
+object ScalaJSWeb extends AutoPlugin {
 
   override def requires = ScalaJSPlugin
 
