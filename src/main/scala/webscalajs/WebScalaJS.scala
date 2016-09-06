@@ -40,7 +40,7 @@ object WebScalaJS extends AutoPlugin {
     scalaJSDev := scalaJSDevTask.value,
     scalaJSProd := scalaJSProdTask.value,
 
-    isDevMode in scalaJSPipeline := (devCommands in scalaJSPipeline).value.contains(state.value.history.current),
+    isDevMode in scalaJSPipeline := isDevModeTask.value,
     devCommands in scalaJSPipeline := Seq("run", "compile", "re-start"),
     scalaJSPipeline := scalaJSPipelineTask.value,
 
@@ -88,6 +88,11 @@ object WebScalaJS extends AutoPlugin {
   def scalaJSProdTask: Initialize[Task[Pipeline.Stage]] = Def.task { mappings: Seq[PathMapping] =>
     val filtered = filterMappings(mappings, (includeFilter in scalaJSProd).value, (excludeFilter in scalaJSProd).value)
     filtered ++ prodFiles(Compile).value ++ sourcemapScalaFiles(fullOptJS).value
+  }
+
+  def isDevModeTask: Initialize[Task[Boolean]] = Def.task {
+    val userCommand = state.value.history.current.takeWhile(c => !c.isWhitespace)
+    (devCommands in scalaJSPipeline).value.contains(userCommand)
   }
 
   private def filterMappings(mappings: Seq[PathMapping], include: FileFilter, exclude: FileFilter) = {
