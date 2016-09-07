@@ -75,3 +75,7 @@ Redefine `compile` to trigger `scalaJSPipeline` when using `compile`, `~compile`
 ```
 compile in Compile <<= (compile in Compile) dependsOn scalaJSPipeline.map(f => f(Seq.empty))
 ```
+As we only care about triggering `scalaJSPipeline` dependencies here, the line can be shortened to:
+```
+compile in Compile <<= (compile in Compile) dependsOn scalaJSPipeline
+```
