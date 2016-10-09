@@ -91,8 +91,12 @@ object WebScalaJS extends AutoPlugin {
   }
 
   def isDevModeTask: Initialize[Task[Boolean]] = Def.task {
-    val userCommand = state.value.history.current.takeWhile(c => !c.isWhitespace)
-    (devCommands in scalaJSPipeline).value.contains(userCommand)
+    (devCommands in scalaJSPipeline).value.contains(executedCommandKey.value)
+  }
+
+  private def executedCommandKey() = Def.task {
+    // A fully-qualified reference to a setting or task looks like {<build-uri>}<project-id>/config:intask::key
+    state.value.history.current.takeWhile(c => !c.isWhitespace).split(Array('/', ':')).last
   }
 
   private def filterMappings(mappings: Seq[PathMapping], include: FileFilter, exclude: FileFilter) = {
