@@ -40,7 +40,7 @@ object WebScalaJS extends AutoPlugin {
     scalaJSDev := scalaJSDevTask.value,
     scalaJSProd := scalaJSProdTask.value,
 
-    isDevMode in scalaJSPipeline := isDevModeTask.value,
+    isDevMode in scalaJSPipeline := (isDevMode in scalaJSPipeline).?.value.getOrElse(isDevModeTask.value),
     devCommands in scalaJSPipeline := Seq("run", "compile", "re-start"),
     scalaJSPipeline := scalaJSPipelineTask.value,
 
