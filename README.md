@@ -41,7 +41,7 @@ To see the plugin in action, you can clone and run one of these example apps:
 
 There are two plugins: `WebScalaJS` and `ScalaJSWeb`.
 * `WebScalaJS` is automatically added to your SbtWeb project.
-* `ScalaJSWeb` should be manually added to the Scala.js projects that you want to connect to your SbtWeb project.
+* `ScalaJSWeb` should be manually added to the Scala.js projects that you want to connect the source mapping to your SbtWeb project.
 * Scala.js projects are collected in the `scalaJSProjects` setting key of the SbtWeb project. The plugin does nothing if `scalaJSProjects` is not specified or is empty.
 * When compilation or testing takes place, then the `WebScalaJS` plugin runs all required tasks on `scalaJSProjects` projects, copies the output to SbtWeb assets and takes care about source maps.
 
