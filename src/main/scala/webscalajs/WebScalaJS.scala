@@ -96,7 +96,7 @@ object WebScalaJS extends AutoPlugin {
 
   private def executedCommandKey() = Def.task {
     // A fully-qualified reference to a setting or task looks like {<build-uri>}<project-id>/config:intask::key
-    state.value.history.current.takeWhile(c => !c.isWhitespace).split(Array('/', ':')).last
+    state.value.history.current.takeWhile(c => !c.isWhitespace).split(Array('/', ':')).lastOption.getOrElse("")
   }
 
   private def filterMappings(mappings: Seq[PathMapping], include: FileFilter, exclude: FileFilter) = {
