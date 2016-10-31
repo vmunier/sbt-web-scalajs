@@ -73,9 +73,9 @@ But it can easily be enabled in production too by setting `(emitSourceMaps in fu
 The plugin also watches files from the Scala.js projects.
 Redefine `compile` to trigger `scalaJSPipeline` when using `compile`, `~compile`, `~run`:
 ```
-compile in Compile <<= (compile in Compile) dependsOn scalaJSPipeline.map(f => f(Seq.empty))
+compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline.map(f => f(Seq.empty))).value
 ```
 As we only care about triggering `scalaJSPipeline` dependencies here, the line can be shortened to:
 ```
-compile in Compile <<= (compile in Compile) dependsOn scalaJSPipeline
+compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value
 ```
