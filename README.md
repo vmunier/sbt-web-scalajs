@@ -58,8 +58,9 @@ There are two plugins: `WebScalaJS` and `ScalaJSWeb`.
 * `isDevMode` task returns true if the sbt command run by the user exists in the `devCommands` setting.
   Some users may want to override `isDevMode` to read the dev/prod mode from a configuration file or from an environment variable.
 
-* `devCommands` setting contains the name of the commands used during development, which are `run`, `compile` and `re-start`.
-  It can be extended/overridden to contain different dev commands.
+* `devCommands` setting contains the name of the commands used during development, which includes `run`, `compile` and `re-start`.
+  It can be extended/overridden to contain different dev commands. For example, adding `devCommands in scalaJSPipeline ++= Seq("test", "testOnly")`
+  to your build would make `scalaJSPipeline` trigger `scalaJSDev` instead of `scalaJSProd` when running tests.
 
 ## Source Maps
 
@@ -79,3 +80,4 @@ As we only care about triggering `scalaJSPipeline` dependencies here, the line c
 ```
 compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value
 ```
+
