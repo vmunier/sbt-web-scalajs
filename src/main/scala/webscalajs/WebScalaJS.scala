@@ -41,7 +41,7 @@ object WebScalaJS extends AutoPlugin {
     scalaJSProd := scalaJSProdTask.value,
 
     isDevMode in scalaJSPipeline := isDevModeTask.value,
-    devCommands in scalaJSPipeline := Seq("run", "compile", "re-start", "reStart"),
+    devCommands in scalaJSPipeline := Seq("run", "compile", "re-start", "reStart", "runAll"),
     scalaJSPipeline := scalaJSPipelineTask.value,
 
     /**
