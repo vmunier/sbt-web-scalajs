@@ -109,11 +109,11 @@ object WebScalaJS extends AutoPlugin {
   }
 
   def devFiles(scope: Configuration): Initialize[Task[Seq[PathMapping]]] = {
-    scalaJSOutput(scope)(Seq(packageJSDependencies), Seq(fastOptJS, packageScalaJSLauncher))
+    scalaJSOutput(scope)(Seq(packageJSDependencies), Seq(fastOptJS))
   }
 
   def prodFiles(scope: Configuration): Initialize[Task[Seq[PathMapping]]] = {
-    scalaJSOutput(scope)(Seq(packageJSDependencies, packageMinifiedJSDependencies), Seq(fullOptJS, packageScalaJSLauncher))
+    scalaJSOutput(scope)(Seq(packageJSDependencies, packageMinifiedJSDependencies), Seq(fullOptJS))
   }
 
   def scalaJSOutput(scope: Configuration)(fileTKs: Seq[TaskKey[File]], attributedTKs: Seq[TaskKey[Attributed[File]]]): Initialize[Task[Seq[PathMapping]]] = Def.taskDyn {
@@ -122,7 +122,7 @@ object WebScalaJS extends AutoPlugin {
     Def.task {
       val jsFiles = fileTKs.join.all(filter).value.flatten ++ attributedTKs.join.all(filter).value.flatten.map(_.data)
       jsFiles.flatMap { f =>
-        // Non existing or empty files are ignored. Neither f nor the .map file do necessarily exist. e.g. packageScalaJSLauncher := false, emitSourceMaps := false.
+        // Non existing or empty files are ignored. The .map files do not necessarily exist (emitSourceMaps := false).
         Seq(f, new File(f.getCanonicalPath + ".map")).filter(_.length() != 0).map(f => f -> f.getName)
       }
     }
