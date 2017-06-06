@@ -2,7 +2,7 @@ sbtPlugin := true
 
 name := "sbt-web-scalajs"
 
-version := "1.0.5-SNAPSHOT"
+version := "1.0.5"
 
 organization := "com.vmunier"
 
