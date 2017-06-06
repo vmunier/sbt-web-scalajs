@@ -63,7 +63,7 @@ object WebScalaJS extends AutoPlugin {
     scalaJSWatchSources := Def.taskDyn {
       taskOnProjects(transitiveDependencies(scalaJSProjects.value), watchSources)
     }.value,
-    watchSources <++= scalaJSWatchSources,
+    watchSources ++= scalaJSWatchSources.value,
     includeFilter in scalaJSDev := GlobFilter("*"),
     includeFilter in scalaJSProd := GlobFilter("*")
   )
