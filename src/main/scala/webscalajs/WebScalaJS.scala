@@ -30,7 +30,7 @@ object WebScalaJS extends AutoPlugin {
 
     val monitoredScalaJSDirectories = Def.settingKey[Seq[File]]("Monitored Scala.js directories")
     val scalaJSDirectoriesFilter = Def.settingKey[FileFilter]("Filter that accepts all the monitored Scala.js directories")
-    val scalaJSWatchSources = Def.taskKey[Seq[File]]("Watch sources on all Scala.js projects")
+    val scalaJSWatchSources = Def.taskKey[Seq[CrossSbtUtils.Source]]("Watch sources on all Scala.js projects")
   }
   import webscalajs.WebScalaJS.autoImport._
 
@@ -72,7 +72,7 @@ object WebScalaJS extends AutoPlugin {
     def toRefs: Seq[ProjectReference] = projects.map(projectToRef)
   }
 
-  def scalaJSPipelineTask: Initialize[Task[Pipeline.Stage]] = Def.taskDyn {
+  lazy val scalaJSPipelineTask: Initialize[Task[Pipeline.Stage]] = Def.taskDyn {
     if ((isDevMode in scalaJSPipeline).value) {
       scalaJSDev
     } else {
@@ -80,23 +80,32 @@ object WebScalaJS extends AutoPlugin {
     }
   }
 
-  def scalaJSDevTask: Initialize[Task[Pipeline.Stage]] = Def.task { mappings: Seq[PathMapping] =>
-    val filtered = filterMappings(mappings, (includeFilter in scalaJSDev).value, (excludeFilter in scalaJSDev).value)
-    filtered ++ devFiles(Compile).value ++ sourcemapScalaFiles(fastOptJS).value
+  lazy val scalaJSDevTask: Initialize[Task[Pipeline.Stage]] = Def.task {
+    val include = (includeFilter in scalaJSDev).value
+    val exclude = (excludeFilter in scalaJSDev).value
+    val compileDevFiles = devFiles(Compile).value
+    val fastOptSourcemapScalaFiles = sourcemapScalaFiles(fastOptJS).value
+
+    mappings: Seq[PathMapping] => {
+      val filtered = filterMappings(mappings, include, exclude)
+      filtered ++ compileDevFiles ++ fastOptSourcemapScalaFiles
+    }
   }
 
-  def scalaJSProdTask: Initialize[Task[Pipeline.Stage]] = Def.task { mappings: Seq[PathMapping] =>
-    val filtered = filterMappings(mappings, (includeFilter in scalaJSProd).value, (excludeFilter in scalaJSProd).value)
-    filtered ++ prodFiles(Compile).value ++ sourcemapScalaFiles(fullOptJS).value
+  lazy val scalaJSProdTask: Initialize[Task[Pipeline.Stage]] = Def.task {
+    val include = (includeFilter in scalaJSProd).value
+    val exclude = (excludeFilter in scalaJSProd).value
+    val compileProdFiles = prodFiles(Compile).value
+    val fullOptSourcemapScalaFiles = sourcemapScalaFiles(fullOptJS).value
+
+    mappings: Seq[PathMapping] => {
+      val filtered = filterMappings(mappings, include, exclude)
+      filtered ++ compileProdFiles ++ fullOptSourcemapScalaFiles
+    }
   }
 
-  def isDevModeTask: Initialize[Task[Boolean]] = Def.task {
-    (devCommands in scalaJSPipeline).value.contains(executedCommandKey.value)
-  }
-
-  private def executedCommandKey() = Def.task {
-    // A fully-qualified reference to a setting or task looks like {<build-uri>}<project-id>/config:intask::key
-    state.value.history.current.takeWhile(c => !c.isWhitespace).split(Array('/', ':')).lastOption.getOrElse("")
+  lazy val isDevModeTask: Initialize[Task[Boolean]] = Def.task {
+    (devCommands in scalaJSPipeline).value.contains(CrossSbtUtils.executedCommandKey.value)
   }
 
   private def filterMappings(mappings: Seq[PathMapping], include: FileFilter, exclude: FileFilter) = {
@@ -104,7 +113,7 @@ object WebScalaJS extends AutoPlugin {
       yield file -> path
   }
 
-  def monitoredScalaJSDirectoriesSetting: Initialize[Seq[File]] = Def.settingDyn {
+  lazy val monitoredScalaJSDirectoriesSetting: Initialize[Seq[File]] = Def.settingDyn {
     settingOnProjects(transitiveDependencies(scalaJSProjects.value), unmanagedSourceDirectories)
   }
 
@@ -142,10 +151,8 @@ object WebScalaJS extends AutoPlugin {
       for {
         (sourceDir, hashedPath) <- SourceMappings.fromFiles(sourceDirectories)
         scalaFiles = (sourceDir ** "*.scala").get
-        (scalaFile, subPath) <- scalaFiles pair relativeTo(sourceDir)
-      } yield {
-        (new File(scalaFile.getCanonicalPath), s"$hashedPath/$subPath")
-      }
+        (scalaFile, subPath) <- scalaFiles pair CrossSbtUtils.relativeTo(sourceDir)
+      } yield (new File(scalaFile.getCanonicalPath), s"$hashedPath/$subPath")
     }
   }
 
