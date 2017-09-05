@@ -8,9 +8,9 @@ sbt-web-scalajs is a SBT plugin which allows you to use Scala.js along with any 
 
 ## Setup
 
-Specify the sbt version in `project/build.properties`, which needs to be 0.13.7 or higher:
+Specify the sbt version in `project/build.properties`, which needs to be 0.13.16 or higher (or sbt 1.x):
 ```
-sbt.version=0.13.7
+sbt.version=0.13.16
 ```
 
 Add the sbt plugin to the `project/plugins.sbt` file along with Scala.js:
