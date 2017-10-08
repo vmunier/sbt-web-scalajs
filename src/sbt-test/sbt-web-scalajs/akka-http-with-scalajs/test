@@ -1,0 +1,15 @@
+> clean
+
+# produce archive with no source maps
+> universal:packageBin
+$ exec chmod +x countScalaFiles.sh
+$ exec ./countScalaFiles.sh 0
+
+# produce archive with source maps
+> set emitSourceMaps in (client, fullOptJS) := true
+> set emitSourceMaps in (sharedJs, fullOptJS) := true
+> universal:packageBin
+$ exec chmod +x countScalaFiles.sh
+# The Scala files are replicated into two folders (META-INF, public) inside the JAR.
+# So, we expect to see double the number of Scala files that exist in client and shared.
+$ exec ./countScalaFiles.sh 4

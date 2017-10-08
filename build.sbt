@@ -19,6 +19,9 @@ scalacOptions ++= Seq(
   "-Xlint"
 )
 
+scriptedLaunchOpts += "-Dplugin.version=" + version.value
+scriptedBufferLog := false
+
 pomExtra :=
   <scm>
     <url>git@github.com:vmunier/sbt-web-scalajs.git</url>
