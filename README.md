@@ -33,9 +33,9 @@ Note: make sure you use the `Assets` scope.
 
 ## Examples
 
-To see the plugin in action, you can clone and run one of these example apps:
-- [Play with Scala.js app](https://github.com/vmunier/play-with-scalajs-example)
-- [Akka HTTP with Scala.js app](https://github.com/vmunier/akka-http-with-scalajs-example)
+To see the plugin in action, you can run `sbt new` with one of these Giter8 templates:
+- [Play with Scala.js](https://github.com/vmunier/play-scalajs.g8): `sbt new vmunier/play-scalajs.g8`
+- [Akka HTTP with Scala.js](https://github.com/vmunier/akka-http-scalajs.g8): `sbt new vmunier/akka-http-scalajs.g8`
 
 ## How it works
 
