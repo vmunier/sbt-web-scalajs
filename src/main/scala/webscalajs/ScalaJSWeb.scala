@@ -18,7 +18,7 @@ object ScalaJSWeb extends AutoPlugin {
   import autoImport._
 
   override def projectSettings: Seq[Setting[_]] = Seq(
-    emitSourceMaps in fullOptJS := false,
+    scalaJSLinkerConfig in fullOptJS ~= (_.withSourceMap(false)),
     sourceMappings := SourceMappings.fromFiles((unmanagedSourceDirectories in Compile).value),
     scalacOptions ++= sourceMappingOptions(sourceMappings.value)
   )
