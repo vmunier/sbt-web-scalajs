@@ -145,7 +145,7 @@ object WebScalaJS extends AutoPlugin {
   }
 
   def sourcemapScalaFiles(optJS: TaskKey[Attributed[File]]): Initialize[Task[Seq[PathMapping]]] = Def.taskDyn {
-    val projectsWithSourceMaps = filterInitializeSeq(scalaJSProjects, (p: Project) => withSourceMap in(p, optJS)).value
+    val projectsWithSourceMaps = filterInitializeSeq(scalaJSProjects, (p: Project) => emitSourceMaps in(p, optJS)).value
     Def.task {
       val sourceDirectories = settingOnProjects(transitiveDependencies(projectsWithSourceMaps), unmanagedSourceDirectories).value
 
