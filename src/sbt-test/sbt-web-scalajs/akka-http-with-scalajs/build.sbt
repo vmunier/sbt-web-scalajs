@@ -1,6 +1,3 @@
-// shadow sbt-scalajs' crossProject and CrossType until Scala.js 1.0.0 is released
-import sbtcrossproject.{crossProject, CrossType}
-
 val scalaV = "2.12.2"
 
 lazy val server = (project in file("server")).settings(

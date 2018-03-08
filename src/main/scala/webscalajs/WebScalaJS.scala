@@ -8,7 +8,7 @@ import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import sbt.Def.Initialize
 import sbt.Keys._
 import sbt.Project.projectToRef
-import sbt.{Def, _}
+import sbt._
 
 /**
   * Auto-plugin added to SbtWeb projects
