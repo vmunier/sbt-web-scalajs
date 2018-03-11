@@ -1,3 +1,5 @@
+import sbtcrossproject.{crossProject, CrossType}
+
 val scalaV = "2.12.2"
 
 lazy val server = (project in file("server")).settings(
