@@ -7,9 +7,9 @@ organization := "com.vmunier"
 homepage := Some(url("https://github.com/vmunier/sbt-web-scalajs"))
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
 
-crossSbtVersions := Seq("0.13.16", "1.0.1")
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.19")
-addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.4.2")
+crossSbtVersions := Seq("0.13.17", "1.1.2")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.22")
+addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.4.3")
 
 scalacOptions ++= Seq(
   "-deprecation",
