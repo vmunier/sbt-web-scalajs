@@ -1,9 +1,11 @@
+package com.example.akkahttpscalajs.twirl
+
 import akka.http.scaladsl.marshalling.{Marshaller, _}
 import akka.http.scaladsl.model.MediaType
 import akka.http.scaladsl.model.MediaTypes._
 import play.twirl.api.{Html, Txt, Xml}
 
-package object example {
+object Implicits {
 
   /** Twirl marshallers for Xml, Html and Txt mediatypes */
   implicit val twirlHtmlMarshaller = twirlMarshaller[Html](`text/html`)
