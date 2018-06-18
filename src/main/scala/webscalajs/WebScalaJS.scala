@@ -3,6 +3,7 @@ package webscalajs
 import com.typesafe.sbt.web.SbtWeb.autoImport._
 import com.typesafe.sbt.web.pipeline.Pipeline
 import com.typesafe.sbt.web.{PathMapping, SbtWeb}
+import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import sbt.Def.Initialize
 import sbt.Keys._
@@ -144,10 +145,12 @@ object WebScalaJS extends AutoPlugin {
   }
 
   def sourcemapScalaFiles(optJS: TaskKey[Attributed[File]]): Initialize[Task[Seq[PathMapping]]] = Def.taskDyn {
-    val projectsWithSourceMaps = filterInitializeSeq(scalaJSProjects, (p: Project) => emitSourceMaps in(p, optJS)).value
+    val projectsWithSourceMaps = filterInitializeSeq(
+      scalaJSProjects,
+      (p: Project) => Def.setting(scalaJSLinkerConfig.in(p, optJS).value.sourceMap)).value
+
     Def.task {
       val sourceDirectories = settingOnProjects(transitiveDependencies(projectsWithSourceMaps), unmanagedSourceDirectories).value
-
       for {
         (sourceDir, hashedPath) <- SourceMappings.fromFiles(sourceDirectories)
         scalaFiles = (sourceDir ** "*.scala").get

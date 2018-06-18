@@ -1,5 +1,6 @@
 package webscalajs
 
+import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import sbt.Keys._
@@ -10,7 +11,7 @@ import sbt._
   */
 object ScalaJSWeb extends AutoPlugin {
 
-  override def requires = ScalaJSPlugin
+  override def requires = ScalaJSPlugin && JSDependenciesPlugin
 
   object autoImport {
     val sourceMappings = Def.settingKey[Seq[(File, String)]]("Mappings of files to their hashed canonical path")
@@ -18,7 +19,7 @@ object ScalaJSWeb extends AutoPlugin {
   import autoImport._
 
   override def projectSettings: Seq[Setting[_]] = Seq(
-    emitSourceMaps in fullOptJS := false,
+    scalaJSLinkerConfig in fullOptJS ~= (_.withSourceMap(false)),
     sourceMappings := SourceMappings.fromFiles((unmanagedSourceDirectories in Compile).value),
     scalacOptions ++= sourceMappingOptions(sourceMappings.value)
   )
