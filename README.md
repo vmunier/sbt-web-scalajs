@@ -13,11 +13,16 @@ Specify the sbt version in `project/build.properties`, which needs to be 0.13.16
 sbt.version=1.1.6
 ```
 
-Add the sbt plugin to the `project/plugins.sbt` file along with Scala.js:
+If you want to use Scala.js 1.x, add the following plugins to `project/plugins.sbt`:
 ```
-addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.0.7")
+addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.0.8")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.0.0-M3")
+```
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.22")
+Otherwise, if you prefer using Scala.js 0.6.x, add the following plugins to `project/plugins.sbt`:
+```
+addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.0.8-0.6")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.23")
 ```
 
 Lastly, put the following configuration in `build.sbt`:
@@ -81,3 +86,14 @@ As we only care about triggering `scalaJSPipeline` dependencies here, the line c
 compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value
 ```
 
+## Publish a new verion of the plugin
+
+For Scala.js 0.6.x:
+```
+$ sbt ^publish
+```
+
+For Scala.js 1.x:
+```
+$ SCALAJS_VERSION=1.0.0-M3 sbt ^publish
+```
