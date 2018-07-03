@@ -48,13 +48,13 @@ sbt-web-scalajs maintains a list of dev commands, which includes `run`, `compile
 When one of the dev commands is executed in SBT, e.g. `sbt run`, sbt-web-scalajs considers to be in development mode and will call Scala.js fastOptJS.
 For all other commands, which are not listed in the `devCommands` setting, e.g. `sbt universal:packageBin`, sbt-web-scalajs considers to be in production mode and will call Scala.js fullOptJS.
 
-It is possible to control when fastOptJS or fullOptJS is selected, either by extending the `devCommands` setting or by overriding the `isDevCommand` task.
+It is possible to control when fastOptJS or fullOptJS is selected, either by extending the `devCommands` setting or by overriding the `isDevMode` task.
 
 #### Extending `devCommands`
 
-You may want to instruct sbt-web-scalajs to run fastOptJS when the tests are run, in which case you can add `devCommands in scalaJSPipeline ++= Seq("test", "testOnly")` to your server's build settings.
+You may want to instruct sbt-web-scalajs to execute fastOptJS when the tests are run, in which case you can add `devCommands in scalaJSPipeline ++= Seq("test", "testOnly")` to your server's build settings.
 
-#### Overriding the `isDevCommand`
+#### Overriding `isDevMode`
 
 You can also explicitly control when fastOptJS or fullOptJS is executed. For example, you may want sbt-web-scalajs to always execute fastOptJS, except when a `SCALAJS_PROD` environment variable is defined, in which case add `isDevMode in scalaJSPipeline := !sys.env.get("SCALAJS_PROD").isDefined` to your server's build settings. Simply start SBT with `sbt` and fastOptJS will be executed for any command; similarly start SBT with `SCALAJS_PROD=true sbt` and fullOptJS will be executed for any command.
 
