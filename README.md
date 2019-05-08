@@ -102,7 +102,7 @@ As we only care about triggering `scalaJSPipeline` dependencies here, the line c
 compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value
 ```
 
-## Publish a new verion of the plugin
+## Publish a new version of the plugin
 
 For Scala.js 0.6.x:
 ```
@@ -111,5 +111,5 @@ $ sbt ^publish
 
 For Scala.js 1.x:
 ```
-$ SCALAJS_VERSION=1.0.0-M3 sbt ^publish
+$ SCALAJS_VERSION=1.0.0-M7 sbt ^publish
 ```
