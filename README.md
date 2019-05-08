@@ -22,7 +22,7 @@ addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.0.0-M7")
 Otherwise, if you prefer using Scala.js 0.6.x, add the following plugins to `project/plugins.sbt`:
 ```
 addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.0.8-0.6")
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.23")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.27")
 ```
 
 Lastly, put the following configuration in `build.sbt`:
