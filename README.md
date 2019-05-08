@@ -15,13 +15,13 @@ sbt.version=1.1.6
 
 If you want to use Scala.js 1.x, add the following plugins to `project/plugins.sbt`:
 ```
-addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.0.8")
+addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.0.9")
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.0.0-M7")
 ```
 
 Otherwise, if you prefer using Scala.js 0.6.x, add the following plugins to `project/plugins.sbt`:
 ```
-addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.0.8-0.6")
+addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.0.9-0.6")
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.27")
 ```
 
