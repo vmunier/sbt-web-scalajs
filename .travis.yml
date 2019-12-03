@@ -16,7 +16,7 @@ before_cache:
 
 script:
   - sbt scripted
-  - SCALAJS_VERSION=1.0.0-M8 sbt scripted
+  - SCALAJS_VERSION=1.0.0-RC1 sbt scripted
 
 notifications:
   email:
