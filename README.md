@@ -111,5 +111,5 @@ $ sbt ^publish
 
 For Scala.js 1.x:
 ```
-$ SCALAJS_VERSION=1.0.0-M7 sbt ^publish
+$ SCALAJS_VERSION=1.0.0-RC1 sbt ^publish
 ```
