@@ -10,19 +10,19 @@ sbt-web-scalajs is a SBT plugin which allows you to use Scala.js along with any 
 
 Specify the sbt version in `project/build.properties`, which needs to be 0.13.16 or higher (or sbt 1.x):
 ```
-sbt.version=1.1.6
+sbt.version=1.3.5
 ```
 
 If you want to use Scala.js 1.x, add the following plugins to `project/plugins.sbt`:
 ```
-addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.0.9")
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.0.0-M7")
+addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.0.10")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.0.0-RC2")
 ```
 
 Otherwise, if you prefer using Scala.js 0.6.x, add the following plugins to `project/plugins.sbt`:
 ```
-addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.0.9-0.6")
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.27")
+addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.0.10-0.6")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.31")
 ```
 
 Lastly, put the following configuration in `build.sbt`:
