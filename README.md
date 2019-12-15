@@ -109,7 +109,7 @@ For Scala.js 0.6.x:
 $ sbt ^publish
 ```
 
-For Scala.js 1.x:
+For Scala.js 1.x (no need to cross publish as Scala.js 1.x only supports SBT 0.13.x):
 ```
-$ SCALAJS_VERSION=1.0.0-RC2 sbt ^publish
+$ SCALAJS_VERSION=1.0.0-RC2 sbt publish
 ```
