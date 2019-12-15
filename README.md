@@ -56,7 +56,7 @@ You may want to instruct sbt-web-scalajs to execute fastOptJS when the tests are
 
 #### Overriding `isDevMode`
 
-You can also explicitly control when fastOptJS or fullOptJS is executed. For example, you may want sbt-web-scalajs to always execute fastOptJS, except when a `SCALAJS_PROD` environment variable is defined, in which case add `isDevMode in scalaJSPipeline := !sys.env.get("SCALAJS_PROD").isDefined` to your server's build settings. Simply start SBT with `sbt` and fastOptJS will be executed for any command; similarly start SBT with `SCALAJS_PROD=true sbt` and fullOptJS will be executed for any command.
+You can also explicitly control when fastOptJS or fullOptJS is executed. For example, you may want sbt-web-scalajs to always execute fastOptJS, except when a `SCALAJS_PROD` environment variable is defined, in which case add `isDevMode in scalaJSPipeline := !sys.env.get("SCALAJS_PROD").contains("true")` to your server's build settings. Simply start SBT with `sbt` and fastOptJS will be executed for any command; similarly start SBT with `SCALAJS_PROD=true sbt` and fullOptJS will be executed for any command.
 
 ## How it works
 
