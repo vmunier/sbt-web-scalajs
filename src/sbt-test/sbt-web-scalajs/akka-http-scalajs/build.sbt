@@ -6,9 +6,9 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
   // triggers scalaJSPipeline when using compile or continuous compilation
   compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value,
   libraryDependencies ++= Seq(
-    "com.typesafe.akka" %% "akka-http" % "10.1.3",
-    "com.typesafe.akka" %% "akka-stream" % "2.5.13",
-    "com.vmunier" %% "scalajs-scripts" % "1.1.2"
+    "com.typesafe.akka" %% "akka-http" % "10.1.11",
+    "com.typesafe.akka" %% "akka-stream" % "2.6.3",
+    "com.vmunier" %% "scalajs-scripts" % "1.1.4"
   ),
   WebKeys.packagePrefix in Assets := "public/",
   managedClasspath in Runtime += (packageBin in Assets).value
@@ -31,7 +31,7 @@ lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
 
 lazy val commonSettings = Seq(
-  scalaVersion := "2.12.10",
+  scalaVersion := "2.13.1",
   organization := "com.example"
 )
 
