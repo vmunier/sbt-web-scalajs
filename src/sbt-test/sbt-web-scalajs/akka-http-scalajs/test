@@ -6,8 +6,8 @@ $ exec chmod +x countScalaFiles.sh
 $ exec ./countScalaFiles.sh 0
 
 # produce archive with source maps
-> set scalaJSLinkerConfig in (client, fullOptJS) ~= (_.withSourceMap(true))
-> set scalaJSLinkerConfig in (sharedJs, fullOptJS) ~= (_.withSourceMap(true))
+> set scalaJSLinkerConfig in (client, Compile, fullOptJS) ~= (_.withSourceMap(true))
+> set scalaJSLinkerConfig in (sharedJs, Compile, fullOptJS) ~= (_.withSourceMap(true))
 > universal:packageBin
 $ exec chmod +x countScalaFiles.sh
 # The Scala files are replicated into two folders (META-INF, public) inside the JAR.
