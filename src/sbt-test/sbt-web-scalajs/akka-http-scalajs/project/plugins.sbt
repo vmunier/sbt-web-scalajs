@@ -4,7 +4,7 @@ sys.props.get("plugin.version") match {
                          |Specify this property using the scriptedLaunchOpts -D.""".stripMargin)
 }
 
-val scalaJSVersion = Option(System.getenv("SCALAJS_VERSION")).getOrElse("0.6.31")
+val scalaJSVersion = Option(System.getenv("SCALAJS_VERSION")).getOrElse("0.6.32")
 
 // fast development turnaround when using sbt ~re-start
 addSbtPlugin("io.spray"           % "sbt-revolver"             % "0.9.1")
