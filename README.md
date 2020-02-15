@@ -88,7 +88,7 @@ There are two plugins: `WebScalaJS` and `ScalaJSWeb`.
 The plugin copies the Scala files to the SbtWeb assets, so that they can be served to the browser and used for Source Maps.
 
 Source Map and Scala files _do not exist in production_ by default to prevent your users from seeing the source files.
-But it can easily be enabled in production too by setting `scalaJSLinkerConfig in fullOptJS ~= (_.withSourceMap(true))` in the Scala.js projects.
+But it can easily be enabled in production too by setting `scalaJSLinkerConfig in (Compile, fullOptJS) ~= (_.withSourceMap(true))` in the Scala.js projects.
 
 ## Scala.js continuous compilation
 

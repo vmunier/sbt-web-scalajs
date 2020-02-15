@@ -1,15 +1,16 @@
-> clean
+> akka-http-scalajs/clean
 
 # produce archive with no source maps
 > universal:packageBin
-$ exec chmod +x countScalaFiles.sh
-$ exec ./countScalaFiles.sh 0
+$ exec chmod +x countScalaAndSourceMapFiles.sh
+$ exec ./countScalaAndSourceMapFiles.sh 0 0
+
+# cleaning needed, otherwise source map files (.map) are not generated
+> akka-http-scalajs/clean
 
 # produce archive with source maps
-> set scalaJSLinkerConfig in (client, fullOptJS) ~= (_.withSourceMap(true))
-> set scalaJSLinkerConfig in (sharedJs, fullOptJS) ~= (_.withSourceMap(true))
+> set scalaJSLinkerConfig in (client, Compile, fullOptJS) ~= (_.withSourceMap(true))
+> set scalaJSLinkerConfig in (sharedJs, Compile, fullOptJS) ~= (_.withSourceMap(true))
 > universal:packageBin
-$ exec chmod +x countScalaFiles.sh
-# The Scala files are replicated into two folders (META-INF, public) inside the JAR.
-# So, we expect to see double the number of Scala files that exist in client and shared.
-$ exec ./countScalaFiles.sh 4
+$ exec chmod +x countScalaAndSourceMapFiles.sh
+$ exec ./countScalaAndSourceMapFiles.sh 2 1
