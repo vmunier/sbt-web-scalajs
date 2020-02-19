@@ -132,7 +132,7 @@ object WebScalaJS extends AutoPlugin {
     Def.task {
       val jsFiles = fileTKs.join.all(filter).value.flatten ++ attributedTKs.join.all(filter).value.flatten.map(_.data)
       jsFiles.flatMap { f =>
-        // Non existing or empty files are ignored. The .map files do not necessarily exist (emitSourceMaps := false).
+        // Non existing or empty files are ignored. The .map files do not necessarily exist.
         Seq(f, new File(f.getCanonicalPath + ".map")).filter(_.length() != 0).map(f => f -> f.getName)
       }
     }
