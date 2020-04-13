@@ -24,8 +24,9 @@ object ScalaJSWeb extends AutoPlugin {
     scalacOptions ++= sourceMappingOptions(sourceMappings.value)
   )
 
-  private def sourceMappingOptions(sourceMappings: Seq[(File, String)]) = for ((file, newPrefix) <- sourceMappings) yield {
-    val oldPrefix = file.getCanonicalFile.toURI
-    s"-P:scalajs:mapSourceURI:$oldPrefix->$newPrefix/"
-  }
+  private def sourceMappingOptions(sourceMappings: Seq[(File, String)]) =
+    for ((file, newPrefix) <- sourceMappings) yield {
+      val oldPrefix = file.getCanonicalFile.toURI
+      s"-P:scalajs:mapSourceURI:$oldPrefix->$newPrefix/"
+    }
 }
