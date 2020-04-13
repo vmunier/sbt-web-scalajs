@@ -104,12 +104,12 @@ compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value
 
 ## Publish a new version of the plugin
 
-For Scala.js 0.6.x:
-```
-$ sbt ^publish
-```
-
 For Scala.js 1.x (no need to cross publish as Scala.js 1.x only supports SBT 0.13.x):
 ```
-$ SCALAJS_VERSION=1.0.0-RC2 sbt publish
+$ sbt publish
+```
+
+For Scala.js 0.6.x:
+```
+$ SCALAJS_VERSION=0.6.32 sbt ^publish
 ```
