@@ -1,7 +1,7 @@
 import sbtcrossproject.{crossProject, CrossType}
 
 lazy val server = (project in file("server")).settings(commonSettings).settings(
-  scalaJSProjects := Seq(client),
+  scalaJSProjects := Seq(firstClient, secondClient),
   pipelineStages in Assets := Seq(scalaJSPipeline),
   // triggers scalaJSPipeline when using compile or continuous compilation
   compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value,
@@ -15,11 +15,15 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
 ).enablePlugins(SbtWeb, SbtTwirl, JavaAppPackaging).
   dependsOn(sharedJvm)
 
-lazy val client = (project in file("client")).settings(commonSettings).settings(
+lazy val firstClient = (project in file("firstClient")).settings(commonSettings).settings(
   scalaJSUseMainModuleInitializer := true,
-  libraryDependencies ++= Seq(
-    "org.scala-js" %%% "scalajs-dom" % "0.9.8"
-  )
+  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.8"
+).enablePlugins(ScalaJSPlugin, ScalaJSWeb).
+  dependsOn(sharedJs)
+
+lazy val secondClient = (project in file("secondClient")).settings(commonSettings).settings(
+  scalaJSUseMainModuleInitializer := true,
+  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.8"
 ).enablePlugins(ScalaJSPlugin, ScalaJSWeb).
   dependsOn(sharedJs)
 

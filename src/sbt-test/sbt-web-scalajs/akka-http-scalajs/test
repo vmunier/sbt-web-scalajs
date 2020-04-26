@@ -1,16 +1,34 @@
 > akka-http-scalajs/clean
 
-# produce archive with no source maps
-> universal:packageBin
 $ exec chmod +x countScalaAndSourceMapFiles.sh
-$ exec ./countScalaAndSourceMapFiles.sh 0 0
 
-# cleaning needed, otherwise source map files (.map) are not generated
+# archive using default FastOptStage should contain source map files (.map)
+# - 3 Scala files: 1 from firstClient, 1 from secondClient, 1 from sharedJs
+# - 2 source map files: 1 from firstClient, 1 from secondClient
+> universal:packageBin
+$ exec ./countScalaAndSourceMapFiles.sh 3 2
+
+# cleaning needed, otherwise source map files are not generated
 > akka-http-scalajs/clean
 
-# produce archive with source maps
-> set scalaJSLinkerConfig in (client, Compile, fullOptJS) ~= (_.withSourceMap(true))
-> set scalaJSLinkerConfig in (sharedJs, Compile, fullOptJS) ~= (_.withSourceMap(true))
+# archive using FullOptStage should contain source map files by default
+> set scalaJSStage in Global := FullOptStage
 > universal:packageBin
-$ exec chmod +x countScalaAndSourceMapFiles.sh
+$ exec ./countScalaAndSourceMapFiles.sh 3 2
+
+> akka-http-scalajs/clean
+
+# archive using FullOptStage, with source map config set to false, should contain no source map files
+> set scalaJSStage in Global := FullOptStage
+> set scalaJSLinkerConfig in (ThisBuild, Compile, fullOptJS) ~= (_.withSourceMap(false))
+> universal:packageBin
+$ exec ./countScalaAndSourceMapFiles.sh 0 0
+
+> akka-http-scalajs/clean
+
+# archive using FullOptStage, with only 1 project's source map config set to true, should contain 1 source map file
+> set scalaJSStage in Global := FullOptStage
+> set scalaJSLinkerConfig in (firstClient, Compile, fullOptJS) ~= (_.withSourceMap(true))
+> set scalaJSLinkerConfig in (secondClient, Compile, fullOptJS) ~= (_.withSourceMap(false))
+> universal:packageBin
 $ exec ./countScalaAndSourceMapFiles.sh 2 1
