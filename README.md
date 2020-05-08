@@ -10,13 +10,13 @@ sbt-web-scalajs is a SBT plugin which allows you to use Scala.js along with any 
 
 Specify the sbt version in `project/build.properties`, which needs to be 0.13.16 or higher (or sbt 1.x):
 ```
-sbt.version=1.3.8
+sbt.version=1.3.10
 ```
 
 If you want to use Scala.js 1.x, add the following plugins to `project/plugins.sbt`:
 ```
 addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.0.11")
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.0.0-RC2")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.0.1")
 ```
 
 Otherwise, if you prefer using Scala.js 0.6.x, add the following plugins to `project/plugins.sbt`:
@@ -94,10 +94,6 @@ But it can easily be enabled in production too by setting `scalaJSLinkerConfig i
 
 The plugin also watches files from the Scala.js projects.
 Redefine `compile` to trigger `scalaJSPipeline` when using `compile`, `~compile`, `~run`:
-```
-compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline.map(f => f(Seq.empty))).value
-```
-As we only care about triggering `scalaJSPipeline` dependencies here, the line can be shortened to:
 ```
 compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value
 ```
