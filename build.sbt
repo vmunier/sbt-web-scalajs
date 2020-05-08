@@ -12,7 +12,7 @@ addSbtPlugin("org.scala-js" % "sbt-scalajs" % scalaJSVersion)
 if (scalaJSVersion.startsWith("1.")) {
   addSbtPlugin("org.scala-js" % "sbt-jsdependencies" % "1.0.0")
 } else {
-  crossSbtVersions := Seq("0.13.18", "1.3.8")
+  crossSbtVersions := Seq("0.13.18", "1.3.10")
 }
 addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.4.4")
 
