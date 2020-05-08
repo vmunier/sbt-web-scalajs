@@ -6,8 +6,8 @@ import sbt.Keys._
 import sbt._
 
 /**
-  * Auto-plugin to be added to Scala.js projects
-  */
+ * Auto-plugin to be added to Scala.js projects
+ */
 object ScalaJSWeb extends AutoPlugin {
 
   override def requires: Plugins = ScalaJSPlugin && JSDependenciesPlugin
@@ -17,10 +17,11 @@ object ScalaJSWeb extends AutoPlugin {
   }
   import autoImport._
 
-  override def projectSettings: Seq[Setting[_]] = Seq(
-    sourceMappings := SourceMappings.fromFiles((unmanagedSourceDirectories in Compile).value),
-    scalacOptions ++= sourceMappingOptions(sourceMappings.value)
-  )
+  override def projectSettings: Seq[Setting[_]] =
+    Seq(
+      sourceMappings := SourceMappings.fromFiles((unmanagedSourceDirectories in Compile).value),
+      scalacOptions ++= sourceMappingOptions(sourceMappings.value)
+    )
 
   private def sourceMappingOptions(sourceMappings: Seq[(File, String)]): Seq[String] =
     for ((file, newPrefix) <- sourceMappings) yield {

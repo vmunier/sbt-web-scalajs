@@ -12,8 +12,8 @@ import sbt.Project.projectToRef
 import sbt._
 
 /**
-  * Auto-plugin added to SbtWeb projects
-  */
+ * Auto-plugin added to SbtWeb projects
+ */
 object WebScalaJS extends AutoPlugin {
 
   override def trigger: PluginTrigger = allRequirements
@@ -22,7 +22,9 @@ object WebScalaJS extends AutoPlugin {
   object autoImport {
     val scalaJSProjects = Def.settingKey[Seq[Project]]("Scala.js projects attached to the sbt-web project")
 
-    val scalaJSPipeline = Def.taskKey[Pipeline.Stage]("Copies the JavaScript and Source Map files produced by Scala.js to the sbt-web assets")
+    val scalaJSPipeline = Def.taskKey[Pipeline.Stage](
+      "Copies the JavaScript and Source Map files produced by Scala.js to the sbt-web assets"
+    )
 
     val monitoredScalaJSDirectories = Def.settingKey[Seq[File]]("Monitored Scala.js directories")
     val scalaJSDirectoriesFilter =
@@ -31,33 +33,33 @@ object WebScalaJS extends AutoPlugin {
   }
   import webscalajs.WebScalaJS.autoImport._
 
-  override def projectSettings: Seq[Setting[_]] = Seq(
-    scalaJSProjects := Seq(),
-    scalaJSPipeline := scalaJSPipelineTask.value,
-    /**
-      * The Scala.js directories are added to unmanagedSourceDirectories to be part of the directories monitored by Play run.
-      *
-      * @see playMonitoredFilesTask in Play, which creates the list of monitored directories https://github.com/playframework/playframework/blob/f5535aa08d639bae0f1734ebe3bc9aad7ce0f487/framework/src/sbt-plugin/src/main/scala/play/sbt/PlayCommands.scala#L85
-      */
-    unmanagedSourceDirectories in Assets ++= monitoredScalaJSDirectories.value,
-    monitoredScalaJSDirectories := monitoredScalaJSDirectoriesSetting.value,
-    /**
-      * excludeFilter is updated to prevent SbtWeb from adding any descendant files from the Scala.js directories.
-      *
+  override def projectSettings: Seq[Setting[_]] =
+    Seq(
+      scalaJSProjects := Seq(),
+      scalaJSPipeline := scalaJSPipelineTask.value,
+      /**
+       * The Scala.js directories are added to unmanagedSourceDirectories to be part of the directories monitored by Play run.
+       * @see playMonitoredFilesTask in Play, which creates the list of monitored directories https://github.com/playframework/playframework/blob/f5535aa08d639bae0f1734ebe3bc9aad7ce0f487/framework/src/sbt-plugin/src/main/scala/play/sbt/PlayCommands.scala#L85
+       */
+      unmanagedSourceDirectories in Assets ++= monitoredScalaJSDirectories.value,
+      monitoredScalaJSDirectories := monitoredScalaJSDirectoriesSetting.value,
+      /**
+       * excludeFilter is updated to prevent SbtWeb from adding any descendant files from the Scala.js directories.
+       *
       * @see where excludeFilter is used in SbtWeb https://github.com/sbt/sbt-web/blob/cb7585f44fc1a00edca085a361f88cc1bf5ddd13/src/main/scala/com/typesafe/sbt/web/SbtWeb.scala#L245
-      */
-    excludeFilter in Assets := (excludeFilter in Assets).value || scalaJSDirectoriesFilter.value,
-    scalaJSDirectoriesFilter := monitoredScalaJSDirectories.value
-      .map(scalaJSDir => new SimpleFileFilter(f => scalaJSDir.getCanonicalPath == f.getCanonicalPath))
-      .foldLeft(NothingFilter: FileFilter)(_ || _),
-    scalaJSWatchSources := Def.taskDyn {
-      taskOnProjects(transitiveDependencies(scalaJSProjects.value.toRefs), watchSources)
-    }.value,
-    watchSources ++= scalaJSWatchSources.value,
-    includeFilter in scalaJSPipeline := GlobFilter("*")
-  )
+       */
+      excludeFilter in Assets := (excludeFilter in Assets).value || scalaJSDirectoriesFilter.value,
+      scalaJSDirectoriesFilter := monitoredScalaJSDirectories.value
+        .map(scalaJSDir => new SimpleFileFilter(f => scalaJSDir.getCanonicalPath == f.getCanonicalPath))
+        .foldLeft(NothingFilter: FileFilter)(_ || _),
+      scalaJSWatchSources := Def.taskDyn {
+        taskOnProjects(transitiveDependencies(scalaJSProjects.value.toRefs), watchSources)
+      }.value,
+      watchSources ++= scalaJSWatchSources.value,
+      includeFilter in scalaJSPipeline := GlobFilter("*")
+    )
 
-  private implicit class ProjectsImplicits(projects: Seq[Project]) {
+  implicit private class ProjectsImplicits(projects: Seq[Project]) {
     def toRefs: Seq[ProjectReference] = projects.map(projectToRef)
   }
 
@@ -65,26 +67,26 @@ object WebScalaJS extends AutoPlugin {
       mappings: Seq[PathMapping],
       include: FileFilter,
       exclude: FileFilter
-  ): Seq[(File, String)] = {
+  ): Seq[(File, String)] =
     for ((file, path) <- mappings if include.accept(file) && !exclude.accept(file))
       yield file -> path
-  }
 
   private lazy val monitoredScalaJSDirectoriesSetting: Initialize[Seq[File]] = Def.settingDyn {
     settingOnProjects(transitiveDependencies(scalaJSProjects.value.toRefs), unmanagedSourceDirectories)
   }
 
-  private def scalaJSPipelineTask: Initialize[Task[Pipeline.Stage]] = Def.task {
-    val include = (includeFilter in scalaJSPipeline).value
-    val exclude = (excludeFilter in scalaJSPipeline).value
-    val optFiles = scalaJSTaskMappings.value
-    val optSourcemapScalaFiles = sourcemapScalaFiles.value
+  private def scalaJSPipelineTask: Initialize[Task[Pipeline.Stage]] =
+    Def.task {
+      val include = (includeFilter in scalaJSPipeline).value
+      val exclude = (excludeFilter in scalaJSPipeline).value
+      val optFiles = scalaJSTaskMappings.value
+      val optSourcemapScalaFiles = sourcemapScalaFiles.value
 
-    mappings: Seq[PathMapping] => {
-      val filtered = filterMappings(mappings, include, exclude)
-      filtered ++ optFiles ++ optSourcemapScalaFiles
+      mappings: Seq[PathMapping] => {
+        val filtered = filterMappings(mappings, include, exclude)
+        filtered ++ optFiles ++ optSourcemapScalaFiles
+      }
     }
-  }
 
   private lazy val scalaJSTaskMappings: Initialize[Task[Seq[PathMapping]]] =
     Def.taskDyn {
@@ -104,9 +106,10 @@ object WebScalaJS extends AutoPlugin {
     Def.task(Seq(packageJSDependencies.value, packageMinifiedJSDependencies.value, fullOptJS.value.data))
   )
 
-  private def transitiveDependencies[A](projects: Seq[ProjectReference]): Initialize[Seq[ProjectRef]] = Def.setting {
-    projects.map(project => thisProjectRef.all(ScopeFilter(inDependencies(project)))).join.value.flatten
-  }
+  private def transitiveDependencies[A](projects: Seq[ProjectReference]): Initialize[Seq[ProjectRef]] =
+    Def.setting {
+      projects.map(project => thisProjectRef.all(ScopeFilter(inDependencies(project)))).join.value.flatten
+    }
 
   lazy val sourcemapScalaFiles: Initialize[Task[Seq[PathMapping]]] = Def.taskDyn {
     val scopeFilter = ScopeFilter(inProjects(scalaJSProjects.value.toRefs: _*), inConfigurations(Compile))
@@ -118,7 +121,7 @@ object WebScalaJS extends AutoPlugin {
         for {
           (sourceDir, hashedPath) <- SourceMappings.fromFiles(sourceDirectories)
           scalaFiles = (sourceDir ** "*.scala").get
-          (scalaFile, subPath) <- scalaFiles pair CrossSbtUtils.relativeTo(sourceDir)
+          (scalaFile, subPath) <- scalaFiles.pair(CrossSbtUtils.relativeTo(sourceDir))
         } yield (new File(scalaFile.getCanonicalPath), s"$hashedPath/$subPath")
       }
     }
@@ -150,20 +153,22 @@ object WebScalaJS extends AutoPlugin {
   private def taskOnProjects[A](
       projects: Initialize[Seq[ProjectRef]],
       action: Initialize[Task[Seq[A]]]
-  ): Initialize[Task[Seq[A]]] = Def.taskDyn {
-    val scopeFilter = ScopeFilter(inProjects(projects.value: _*), inConfigurations(Compile))
-    Def.task {
-      action.all(scopeFilter).value.flatten
+  ): Initialize[Task[Seq[A]]] =
+    Def.taskDyn {
+      val scopeFilter = ScopeFilter(inProjects(projects.value: _*), inConfigurations(Compile))
+      Def.task {
+        action.all(scopeFilter).value.flatten
+      }
     }
-  }
 
   private def settingOnProjects[A](
       projects: Initialize[Seq[ProjectRef]],
       action: Initialize[Seq[A]]
-  ): Initialize[Seq[A]] = Def.settingDyn {
-    val scopeFilter = ScopeFilter(inProjects(projects.value: _*), inConfigurations(Compile))
-    Def.setting {
-      action.all(scopeFilter).value.flatten
+  ): Initialize[Seq[A]] =
+    Def.settingDyn {
+      val scopeFilter = ScopeFilter(inProjects(projects.value: _*), inConfigurations(Compile))
+      Def.setting {
+        action.all(scopeFilter).value.flatten
+      }
     }
-  }
 }
