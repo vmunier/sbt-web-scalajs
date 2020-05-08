@@ -8,6 +8,7 @@ $ exec chmod +x countScalaAndSourceMapFiles.sh
 > universal:packageBin
 $ exec ./countScalaAndSourceMapFiles.sh 3 2
 
+> reload
 # cleaning needed, otherwise source map files are not generated
 > akka-http-scalajs/clean
 
@@ -16,6 +17,7 @@ $ exec ./countScalaAndSourceMapFiles.sh 3 2
 > universal:packageBin
 $ exec ./countScalaAndSourceMapFiles.sh 3 2
 
+> reload
 > akka-http-scalajs/clean
 
 # archive using FullOptStage, with source map config set to false, should contain no source map files
@@ -24,6 +26,7 @@ $ exec ./countScalaAndSourceMapFiles.sh 3 2
 > universal:packageBin
 $ exec ./countScalaAndSourceMapFiles.sh 0 0
 
+> reload
 > akka-http-scalajs/clean
 
 # archive using FullOptStage, with only 1 project's source map config set to true, should contain 1 source map file
