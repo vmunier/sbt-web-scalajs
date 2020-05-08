@@ -43,7 +43,6 @@ object WebScalaJS extends AutoPlugin {
     monitoredScalaJSDirectories := monitoredScalaJSDirectoriesSetting.value,
     /**
       * excludeFilter is updated to prevent SbtWeb from adding any descendant files from the Scala.js directories.
-      * Dev and Prod tasks of this plugin select the Scala files that should be added.
       *
       * @see where excludeFilter is used in SbtWeb https://github.com/sbt/sbt-web/blob/cb7585f44fc1a00edca085a361f88cc1bf5ddd13/src/main/scala/com/typesafe/sbt/web/SbtWeb.scala#L245
       */
