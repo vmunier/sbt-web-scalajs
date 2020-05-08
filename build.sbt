@@ -15,6 +15,11 @@ else
   crossSbtVersions := Seq("0.13.18", "1.3.10")
 addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.4.4")
 
+scriptedLaunchOpts += {
+  val crossprojectVersion = if ((pluginCrossBuild / sbtVersion).value.startsWith("0.13")) "0.6.1" else "1.0.0"
+  s"-Dplugin.sbt-scalajs-crossproject.version=$crossprojectVersion"
+}
+
 scalacOptions ++= Seq(
   "-deprecation",
   "-encoding",

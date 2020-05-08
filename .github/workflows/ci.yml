@@ -17,5 +17,5 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - run: SCALAJS_VERSION=0.6.32 sbt scripted
+    - run: SCALAJS_VERSION=0.6.32 sbt ^scripted
     - run: sbt scripted
