@@ -9,7 +9,7 @@ sys.props.get("plugin.sbt-scalajs-crossproject.version") match {
                          |Specify this property using the scriptedLaunchOpts -D.""".stripMargin)
 }
 
-val scalaJSVersion = Option(System.getenv("SCALAJS_VERSION")).getOrElse("1.0.1")
+val scalaJSVersion = Option(System.getenv("SCALAJS_VERSION")).getOrElse("1.1.0")
 addSbtPlugin("org.scala-js"       % "sbt-scalajs"              % scalaJSVersion)
 
 addSbtPlugin("com.typesafe.sbt"   % "sbt-twirl"                % "1.5.0")
