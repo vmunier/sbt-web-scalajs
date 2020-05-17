@@ -52,5 +52,6 @@ lazy val sharedJs = shared.js
 
 lazy val commonSettings = Seq(
   scalaVersion := "2.13.1",
-  organization := "com.example"
+  organization := "com.example",
+  version := "0.1.0-SNAPSHOT"
 )
