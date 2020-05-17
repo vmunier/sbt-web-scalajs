@@ -1,3 +1,5 @@
+import sbtcrossproject.{crossProject, CrossType}
+
 lazy val server = (project in file("server"))
   .settings(commonSettings)
   .settings(
