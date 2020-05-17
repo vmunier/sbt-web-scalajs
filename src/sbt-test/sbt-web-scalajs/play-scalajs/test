@@ -1,0 +1,56 @@
+# ----
+# Test that Play reloads only for changes made to the server's Scala files,
+# but does not reload for changes made to the client's Scala files, since the Scala.js output files
+# are server's assets and do not require the server to be restarted
+
+> project server
+> run
+# One reload expected at the start
+$ exec wget -q localhost:9000
+> verifyReloads 1
+> resetReloads
+
+# Change a scala file in server, reload expected
+$ copy-file changes/Application.scala server/app/com/example/playscalajs/controllers/Application.scala
+$ exec wget -q localhost:9000
+> verifyReloads 1
+> resetReloads
+
+# Change a scala file in client, no reload expected
+$ copy-file changes/ScalaJSExample.scala client/src/main/scala/com/example/playscalajs/ScalaJSExample.scala
+$ exec wget -q localhost:9000
+> verifyReloads 0
+> resetReloads
+
+> playStop
+
+# ----
+# Test that the archive contains the Scala and source map files
+
+$ exec chmod +x countScalaAndSourceMapFiles.sh
+
+> play-scalajs/clean
+
+# archive using default FastOptStage should contain source map files (.map)
+# - 2 Scala files: 1 from client, 1 from sharedJs
+# - 1 source map files: 1 from client
+> universal:packageBin
+$ exec ./countScalaAndSourceMapFiles.sh 2 1
+
+> reload
+# cleaning needed, otherwise source map files are not generated
+> play-scalajs/clean
+
+# archive using FullOptStage should contain source map files by default
+> set scalaJSStage in Global := FullOptStage
+> universal:packageBin
+$ exec ./countScalaAndSourceMapFiles.sh 2 1
+
+> reload
+> play-scalajs/clean
+
+# archive using FullOptStage, with source map config set to false, should contain no source map files
+> set scalaJSStage in Global := FullOptStage
+> set scalaJSLinkerConfig in (client, Compile, fullOptJS) ~= (_.withSourceMap(false))
+> universal:packageBin
+$ exec ./countScalaAndSourceMapFiles.sh 0 0
