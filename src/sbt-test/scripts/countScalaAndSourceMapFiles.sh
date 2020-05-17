@@ -7,8 +7,6 @@ expectedNbScalaFiles=$1
 expectedNbSourceMapFiles=$2
 archive="$baseDir/server/target/universal/server-0.1.0-SNAPSHOT.zip"
 unzip -o $archive
-unzip -l "server-0.1.0-SNAPSHOT/lib/*-assets.jar" | grep ".*\.scala$"
-unzip -l "server-0.1.0-SNAPSHOT/lib/*-assets.jar" | grep ".*\.map$"
 nbScalaFiles=$(unzip -l "server-0.1.0-SNAPSHOT/lib/*-assets.jar" | grep ".*\.scala$" | wc -l)
 nbSourceMapFiles=$(unzip -l "server-0.1.0-SNAPSHOT/lib/*-assets.jar" | grep ".*\.map$" | wc -l)
 
