@@ -1,10 +1,13 @@
+# ----
+# Test that source map files are present when enabling/disabling source map in both fastOptJS and fullOptJS
+
 > akka-http-scalajs/clean
 
 $ exec chmod +x countScalaAndSourceMapFiles.sh
 
-# archive using default FastOptStage should contain source map files (.map)
-# - 3 Scala files: 1 from firstClient, 1 from secondClient, 1 from sharedJs
-# - 2 source map files: 1 from firstClient, 1 from secondClient
+$ exec echo "Test - Using default FastOptStage, archive should contain source map files (.map)"
+$ exec echo "- 3 Scala files: 1 from firstClient, 1 from secondClient, 1 from sharedJs"
+$ exec echo "- 2 source map files: 1 from firstClient, 1 from secondClient"
 > universal:packageBin
 $ exec ./countScalaAndSourceMapFiles.sh 3 2
 
@@ -12,7 +15,7 @@ $ exec ./countScalaAndSourceMapFiles.sh 3 2
 # cleaning needed, otherwise source map files are not generated
 > akka-http-scalajs/clean
 
-# archive using FullOptStage should contain source map files by default
+$ exec echo "Test - Using FullOptStage, archive should contain source map files by default"
 > set scalaJSStage in Global := FullOptStage
 > universal:packageBin
 $ exec ./countScalaAndSourceMapFiles.sh 3 2
@@ -20,18 +23,48 @@ $ exec ./countScalaAndSourceMapFiles.sh 3 2
 > reload
 > akka-http-scalajs/clean
 
-# archive using FullOptStage, with source map config set to false, should contain no source map files
+$ exec echo "Test - Using FullOptStage with source map config set to false, archive should contain no source map files"
 > set scalaJSStage in Global := FullOptStage
+# ThisBuild could be used with Scala.js v1.x, but we are also publishing to Scala.js v0.6.x
 > set scalaJSLinkerConfig in (firstClient, Compile, fullOptJS) ~= (_.withSourceMap(false))
 > set scalaJSLinkerConfig in (secondClient, Compile, fullOptJS) ~= (_.withSourceMap(false))
+> set scalaJSLinkerConfig in (sharedJs, Compile, fullOptJS) ~= (_.withSourceMap(false))
 > universal:packageBin
 $ exec ./countScalaAndSourceMapFiles.sh 0 0
 
 > reload
 > akka-http-scalajs/clean
 
-# archive using FullOptStage, with only one project's source map config set to true, should contain one source map file
+$ exec echo "Test - Using FullOptStage with only one project's source map config set to true, archive should contain one source map file"
 > set scalaJSStage in Global := FullOptStage
 > set scalaJSLinkerConfig in (secondClient, Compile, fullOptJS) ~= (_.withSourceMap(false))
 > universal:packageBin
 $ exec ./countScalaAndSourceMapFiles.sh 2 1
+
+# ----
+# Test sourceMappings
+
+> reload
+> akka-http-scalajs/clean
+
+$ exec echo "Test - Archive should contain no Scala files when emptying sourceMappings in fullOptJS"
+> set scalaJSStage in Global := FullOptStage
+> set sourceMappings in (ThisBuild, Compile, fullOptJS) := Seq.empty
+> universal:packageBin
+$ exec ./countScalaAndSourceMapFiles.sh 0 2
+
+$ exec echo "Test - Archive should still contain Scala files when scalaJSStage=FastOptStage and sourceMappings is empty in fullOptJS only"
+> set scalaJSStage in Global := FastOptStage
+> universal:packageBin
+$ exec ./countScalaAndSourceMapFiles.sh 3 2
+
+> reload
+> akka-http-scalajs/clean
+
+$ exec echo "Test - Archive should contain 2 Scala files when emptying sourceMappings for one project only"
+> set sourceMappings in secondClient := Seq.empty
+> universal:packageBin
+$ exec ./countScalaAndSourceMapFiles.sh 2 2
+> set scalaJSStage in secondClient := FullOptStage
+> universal:packageBin
+$ exec ./countScalaAndSourceMapFiles.sh 2 2

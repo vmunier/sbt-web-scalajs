@@ -31,6 +31,7 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("shared"))
   .settings(commonSettings)
+  .jsConfigure(_.enablePlugins(ScalaJSWeb))
 lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
 
