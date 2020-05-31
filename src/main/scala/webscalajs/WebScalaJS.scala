@@ -5,11 +5,12 @@ import com.typesafe.sbt.web.pipeline.Pipeline
 import com.typesafe.sbt.web.{PathMapping, SbtWeb}
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-import org.scalajs.sbtplugin.Stage
-import sbt.Def.Initialize
+import sbt.Def.{setting, settingDyn, settingKey, task, taskDyn, taskKey, Initialize}
 import sbt.Keys._
 import sbt.Project.projectToRef
 import sbt._
+import webscalajs.ScalaJSStageTasks._
+import webscalajs.ScalaJSWeb.autoImport.sourceMappings
 
 /**
  * Auto-plugin added to SbtWeb projects
@@ -20,16 +21,16 @@ object WebScalaJS extends AutoPlugin {
   override def requires: Plugins = SbtWeb
 
   object autoImport {
-    val scalaJSProjects = Def.settingKey[Seq[Project]]("Scala.js projects attached to the sbt-web project")
+    val scalaJSProjects = settingKey[Seq[Project]]("Scala.js projects attached to the sbt-web project")
 
-    val scalaJSPipeline = Def.taskKey[Pipeline.Stage](
+    val scalaJSPipeline = taskKey[Pipeline.Stage](
       "Copies the JavaScript and Source Map files produced by Scala.js to the sbt-web assets"
     )
 
-    val monitoredScalaJSDirectories = Def.settingKey[Seq[File]]("Monitored Scala.js directories")
+    val monitoredScalaJSDirectories = settingKey[Seq[File]]("Monitored Scala.js directories")
     val scalaJSDirectoriesFilter =
-      Def.settingKey[FileFilter]("Filter that accepts all the monitored Scala.js directories")
-    val scalaJSWatchSources = Def.taskKey[Seq[CrossSbtUtils.Source]]("Watch sources on all Scala.js projects")
+      settingKey[FileFilter]("Filter that accepts all the monitored Scala.js directories")
+    val scalaJSWatchSources = taskKey[Seq[CrossSbtUtils.Source]]("Watch sources on all Scala.js projects")
   }
   import webscalajs.WebScalaJS.autoImport._
 
@@ -51,7 +52,7 @@ object WebScalaJS extends AutoPlugin {
       scalaJSDirectoriesFilter := monitoredScalaJSDirectories.value
         .map(scalaJSDir => new SimpleFileFilter(f => scalaJSDir.getCanonicalPath == f.getCanonicalPath))
         .foldLeft(NothingFilter: FileFilter)(_ || _),
-      scalaJSWatchSources := Def.taskDyn {
+      scalaJSWatchSources := taskDyn {
         taskOnProjects(transitiveDependencies(scalaJSProjects.value.toRefs), watchSources)
       }.value,
       watchSources ++= scalaJSWatchSources.value,
@@ -70,12 +71,12 @@ object WebScalaJS extends AutoPlugin {
     for ((file, path) <- mappings if include.accept(file) && !exclude.accept(file))
       yield file -> path
 
-  private lazy val monitoredScalaJSDirectoriesSetting: Initialize[Seq[File]] = Def.settingDyn {
+  private lazy val monitoredScalaJSDirectoriesSetting: Initialize[Seq[File]] = settingDyn {
     settingOnProjects(transitiveDependencies(scalaJSProjects.value.toRefs), unmanagedSourceDirectories)
   }
 
   private def scalaJSPipelineTask: Initialize[Task[Pipeline.Stage]] =
-    Def.task {
+    task {
       val include = (includeFilter in scalaJSPipeline).value
       val exclude = (excludeFilter in scalaJSPipeline).value
       val optFiles = scalaJSTaskMappings.value
@@ -88,10 +89,10 @@ object WebScalaJS extends AutoPlugin {
     }
 
   private lazy val scalaJSTaskMappings: Initialize[Task[Seq[PathMapping]]] =
-    Def.taskDyn {
+    taskDyn {
       val filter = ScopeFilter(inProjects(scalaJSProjects.value.toRefs: _*), inConfigurations(Compile))
 
-      Def.task {
+      task {
         val jsFiles: Seq[sbt.File] = scalaJSTaskFiles.all(filter).value.flatten
         jsFiles.flatMap { f =>
           // Non existing or empty files are ignored. The .map files do not necessarily exist.
@@ -101,24 +102,27 @@ object WebScalaJS extends AutoPlugin {
     }
 
   private lazy val scalaJSTaskFiles: Initialize[Task[Seq[sbt.File]]] = onScalaJSStage(
-    Def.task(Seq(packageJSDependencies.value, fastOptJS.value.data)),
-    Def.task(Seq(packageJSDependencies.value, packageMinifiedJSDependencies.value, fullOptJS.value.data))
+    task(Seq(packageJSDependencies.value, fastOptJS.value.data)),
+    task(Seq(packageJSDependencies.value, packageMinifiedJSDependencies.value, fullOptJS.value.data))
   )
 
   private def transitiveDependencies[A](projects: Seq[ProjectReference]): Initialize[Seq[ProjectRef]] =
-    Def.setting {
+    setting {
       projects.map(project => thisProjectRef.all(ScopeFilter(inDependencies(project)))).join.value.flatten
     }
 
-  lazy val sourcemapScalaFiles: Initialize[Task[Seq[PathMapping]]] = Def.taskDyn {
-    val scopeFilter = ScopeFilter(inProjects(scalaJSProjects.value.toRefs: _*), inConfigurations(Compile))
-    Def.taskDyn {
-      val projectsWithSourceMap = currentProjectWithSourceMap.all(scopeFilter).value.flatten
-      Def.task {
-        val sourceDirectories =
-          settingOnProjects(transitiveDependencies(projectsWithSourceMap), unmanagedSourceDirectories).value
+  lazy val sourcemapScalaFiles: Initialize[Task[Seq[PathMapping]]] = taskDyn {
+    val projects = transitiveDependencies(scalaJSProjects.value.toRefs)
+    taskDyn {
+      val scopeFilter = ScopeFilter(inProjects(projects.value: _*), inConfigurations(Compile))
+      val maybeSourceMappings =
+        onScalaJSStage((sourceMappings in fastOptJS).?, (sourceMappings in fullOptJS).?)
+      task {
+        // all scalaJSProjects and their transitive dependencies that have sourceMappings defined
+        val projectsSourceMappings =
+          maybeSourceMappings(_.toSeq.flatten).all(scopeFilter).value.flatten
         for {
-          (sourceDir, hashedPath) <- SourceMappings.fromFiles(sourceDirectories)
+          (sourceDir, hashedPath) <- projectsSourceMappings
           scalaFiles = (sourceDir ** "*.scala").get
           (scalaFile, subPath) <- scalaFiles.pair(CrossSbtUtils.relativeTo(sourceDir))
         } yield (new File(scalaFile.getCanonicalPath), s"$hashedPath/$subPath")
@@ -126,36 +130,13 @@ object WebScalaJS extends AutoPlugin {
     }
   }
 
-  private lazy val currentProjectWithSourceMap: Initialize[Option[ProjectRef]] = Def.settingDyn {
-    val currentProject = thisProjectRef.value
-    val optJSValue = optJS.value
-
-    Def.setting {
-      if (scalaJSLinkerConfig.in(currentProject, Compile, optJSValue).value.sourceMap) Some(currentProject)
-      else None
-    }
-  }
-
-  private lazy val optJS: Initialize[TaskKey[Attributed[File]]] = onScalaJSStage(
-    Def.setting(fastOptJS),
-    Def.setting(fullOptJS)
-  )
-
-  private def onScalaJSStage[A](onFastOpt: => Initialize[A], onFullOpt: => Initialize[A]): Initialize[A] =
-    Def.settingDyn {
-      scalaJSStage.value match {
-        case Stage.FastOpt => onFastOpt
-        case Stage.FullOpt => onFullOpt
-      }
-    }
-
   private def taskOnProjects[A](
       projects: Initialize[Seq[ProjectRef]],
       action: Initialize[Task[Seq[A]]]
   ): Initialize[Task[Seq[A]]] =
-    Def.taskDyn {
+    taskDyn {
       val scopeFilter = ScopeFilter(inProjects(projects.value: _*), inConfigurations(Compile))
-      Def.task {
+      task {
         action.all(scopeFilter).value.flatten
       }
     }
@@ -164,9 +145,9 @@ object WebScalaJS extends AutoPlugin {
       projects: Initialize[Seq[ProjectRef]],
       action: Initialize[Seq[A]]
   ): Initialize[Seq[A]] =
-    Def.settingDyn {
+    settingDyn {
       val scopeFilter = ScopeFilter(inProjects(projects.value: _*), inConfigurations(Compile))
-      Def.setting {
+      setting {
         action.all(scopeFilter).value.flatten
       }
     }
