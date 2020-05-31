@@ -36,13 +36,12 @@ object ScalaJSWeb extends AutoPlugin {
   private def scalaJSStageSettings(optJS: TaskKey[Attributed[File]]): Seq[Setting[_]] =
     Seq(
       // Pick up value in ThisBuild if already defined
-      sourceMappings in optJS := (sourceMappings in optJS).?.value
-        .getOrElse {
-          if ((scalaJSLinkerConfig in optJS).value.sourceMap)
-            toSourceMappings((unmanagedSourceDirectories in Compile).value)
-          else
-            Seq.empty
-        }
+      sourceMappings in optJS := (sourceMappings in optJS).?.value.getOrElse {
+        if ((scalaJSLinkerConfig in optJS).value.sourceMap)
+          toSourceMappings((unmanagedSourceDirectories in Compile).value)
+        else
+          Seq.empty
+      }
     )
 
   private def toScalacOptions(sourceMappings: Seq[(File, String)]): Seq[String] =
