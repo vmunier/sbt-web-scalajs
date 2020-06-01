@@ -15,14 +15,14 @@ sbt.version=1.3.10
 
 If you want to use Scala.js 1.x, add the following plugins to `project/plugins.sbt`:
 ```
-addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.0.11")
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.0.1")
+addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.1.0")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.1.0")
 ```
 
 Otherwise, if you prefer using Scala.js 0.6.x, add the following plugins to `project/plugins.sbt`:
 ```
-addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.0.11-0.6")
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.32")
+addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.1.0-0.6")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.33")
 ```
 
 Lastly, put the following configuration in `build.sbt`:
@@ -42,53 +42,68 @@ To see the plugin in action, you can run `sbt new` with one of these Giter8 temp
 - [Play with Scala.js](https://github.com/vmunier/play-scalajs.g8): `sbt new vmunier/play-scalajs.g8`
 - [Akka HTTP with Scala.js](https://github.com/vmunier/akka-http-scalajs.g8): `sbt new vmunier/akka-http-scalajs.g8`
 
-## Selecting fastOptJS or fullOptJS
+## Upgrade to `v1.1.0`
 
-sbt-web-scalajs maintains a list of dev commands, which includes `run`, `compile` and `re-start` (`show scalaJSPipeline::devCommands` to see the full list).
-When one of the dev commands is executed in SBT, e.g. `sbt run`, sbt-web-scalajs considers to be in development mode and will call Scala.js fastOptJS.
-For all other commands, which are not listed in the `devCommands` setting, e.g. `sbt universal:packageBin`, sbt-web-scalajs considers to be in production mode and will call Scala.js fullOptJS.
+Have a look at the [sbt-web-scalajs v1.1.0 release](https://github.com/vmunier/sbt-web-scalajs/releases/tag/v1.1.0), which details the breaking changes introduced in `v1.1.0`.
 
-It is possible to control when fastOptJS or fullOptJS is selected, either by extending the `devCommands` setting or by overriding the `isDevMode` task.
+## Selecting `fastOptJS` or `fullOptJS`
 
-#### Extending `devCommands`
+sbt-web-scalajs looks up the `scalaJSStage` setting from the Scala.js projects to know whether to run `fastOptJS` or `fullOptJS`.
 
-You may want to instruct sbt-web-scalajs to execute fastOptJS when the tests are run, in which case you can add `devCommands in scalaJSPipeline ++= Seq("test", "testOnly")` to your server's build settings.
-
-#### Overriding `isDevMode`
-
-You can also explicitly control when fastOptJS or fullOptJS is executed. For example, you may want sbt-web-scalajs to always execute fastOptJS, except when a `SCALAJS_PROD` environment variable is defined, in which case add `isDevMode in scalaJSPipeline := !sys.env.get("SCALAJS_PROD").contains("true")` to your server's build settings. Simply start SBT with `sbt` and fastOptJS will be executed for any command; similarly start SBT with `SCALAJS_PROD=true sbt` and fullOptJS will be executed for any command.
+* `scalaJSStage` setting is set to `FastOptStage` by default, which means sbt-web-scalajs runs `fastOptJS` by default.
+* `scalaJSStage := FullOptStage` can be set in a Scala.js project, so that sbt-web-scalajs runs `fullOptJS` for that project.
+* `scalaJSStage in Global := FullOptStage` sets `FullOptStage` for all the Scala.js projects from the build.
 
 ## How it works
 
 There are two plugins: `WebScalaJS` and `ScalaJSWeb`.
 * `WebScalaJS` is automatically added to your SbtWeb project.
-* `ScalaJSWeb` should be manually added to the Scala.js projects that you want to connect the source mapping to your SbtWeb project.
+* `ScalaJSWeb` should be manually added to the Scala.js projects that are used by your SbtWeb project.
 * Scala.js projects are collected in the `scalaJSProjects` setting key of the SbtWeb project. The plugin does nothing if `scalaJSProjects` is not specified or is empty.
-* When compilation or testing takes place, then the `WebScalaJS` plugin runs all required tasks on `scalaJSProjects` projects, copies the output to SbtWeb assets and takes care about source maps.
+* When compilation or testing takes place, then the `WebScalaJS` plugin runs all required tasks on `scalaJSProjects` projects, copies the output to sbt-web assets and takes care of Source Maps.
 
 ## Settings and Tasks
 
-* `scalaJSProjects` setting lists the Scala.js projects whose output is used by the server.
+Defined in `WebScalaJS`:
+* `scalaJSProjects` setting lists the Scala.js projects whose output are used by the server.
 
-* `scalaJSDev` task runs all tasks for development, including Scala.js `fastOptJS` task and source maps.
+* `scalaJSPipeline` task copies the JavaScript and Source Map files produced by Scala.js to the sbt-web assets. Scala files are also copied to be used for Source Maps.
 
-* `scalaJSProd` task runs all tasks for production, including Scala.js `fullOptJS` task and source maps.
+  More precisely, `scalaJSPipeline` performs the following tasks for each project defined in the `scalaJSProjects` setting:
+  * If Scala.js' `scalaJSStage` setting is equal to:
+    - `FastOptStage`, then run `packageJSDependencies` and `fastOptJS`.
+    - `FullOptStage`, then run `packageJSDependencies`, `packageMinifiedJSDependencies` and `fullOptJS`.
 
-* `scalaJSPipeline` task runs `scalaJSDev` when `isDevMode` is true, runs `scalaJSProd` otherwise.
+    The resulting JavaScript files are copied to the sbt-web assets, along with their corresponding source map files (.map) if they exist.
+  * Read the ScalaJSWeb's `sourceMappings` setting from the project and its transitive dependencies.
+    `sourceMappings` lists the directories containing Scala files to be used for Source Maps.
+    Copy all Scala files found in these directories to the sbt-web assets.
 
-* `isDevMode` task returns true if the sbt command run by the user exists in the `devCommands` setting.
-  Some users may want to override `isDevMode` to read the dev/prod mode from a configuration file or from an environment variable.
-
-* `devCommands` setting contains the name of the commands used during development, which includes `run`, `compile` and `re-start`.
-  It can be extended/overridden to contain different dev commands. For example, adding `devCommands in scalaJSPipeline ++= Seq("test", "testOnly")`
-  to your build would make `scalaJSPipeline` trigger `scalaJSDev` instead of `scalaJSProd` when running tests.
+Defined in `ScalaJSWeb`:
+* `sourceMappings` setting lists the Scala files or directories containing Scala files to be used for Source Maps.
+The Scala files from the Scala.js project need to be copied and packaged, so that the server can serve these Scala files to the browser when using Source Maps.
+`sourceMappings` is scoped under `Compile`/`Test` and `fastOptJS`/`fullOptJS`. You can show the current value of `sourceMappings` in SBT, e.g. `Compile/fastOptJS/sourceMappings`:
+```
+> project client
+> show Compile/fastOptJS/sourceMappings
+[info] * (<path>/client/src/main/scala, d09610e823cb5bgb1d53)
+```
+The hash (`d09610e823cb5bgb1d53`) in the sourceMapping output is used to configure the Scala.js' `mapSourceURI` scalac option.
+When generating Source Maps, Scala.js will replace the prefix path of each Scala file with this hash value.
+The hash uniquely identifies a file/directory and can be safely exposed to the users as the full file path is not disclosed.
 
 ## Source Maps
 
-The plugin copies the Scala files to the SbtWeb assets, so that they can be served to the browser and used for Source Maps.
+The plugin copies the Scala files to the sbt-web assets, so that they can be served to the browser and used for Source Maps.
 
-Source Map and Scala files _do not exist in production_ by default to prevent your users from seeing the source files.
-But it can easily be enabled in production too by setting `scalaJSLinkerConfig in (Compile, fullOptJS) ~= (_.withSourceMap(true))` in the Scala.js projects.
+By default, Source Maps are enabled in both `fastOptJS` and `fullOptJS`.
+However, Source Maps can easily be disabled in `fullOptJS` by adding the following line to the Scala.js project's settings:
+```
+scalaJSLinkerConfig in (Compile, fullOptJS) ~= (_.withSourceMap(false))
+```
+When Source Maps are disabled, the `.map` files and the Scala files are not copied and do not exist in the sbt-web assets.
+
+Note that Source Maps only get requested by the browser when the DevTools is open, so it does not hinder the performance of your website.
 
 ## Scala.js continuous compilation
 
