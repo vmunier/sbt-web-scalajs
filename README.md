@@ -80,16 +80,16 @@ Defined in `WebScalaJS`:
     Copy all Scala files found in these directories to the sbt-web assets.
 
 Defined in `ScalaJSWeb`:
-* `sourceMappings` setting lists the Scala files or directories containing Scala files to be used for Source Maps.
-The Scala files from the Scala.js project need to be copied and packaged, so that the server can serve these Scala files to the browser when using Source Maps.
-`sourceMappings` is scoped under `Compile`/`Test` and `fastOptJS`/`fullOptJS`. You can show the current value of `sourceMappings` in SBT, e.g. `Compile/fastOptJS/sourceMappings`:
+* `sourceMappings` setting lists the directories containing Scala files to be used for Source Maps.
+The Scala files from the Scala.js project need to be copied and packaged, so that the server can serve these files to the browser when using Source Maps.
+`sourceMappings` is scoped under `Compile`/`Test` and `fastOptJS`/`fullOptJS`. Let's have a look at the value of `Compile/fastOptJS/sourceMappings` in SBT:
 ```
 > project client
 > show Compile/fastOptJS/sourceMappings
 [info] * (<path>/client/src/main/scala, d09610e823cb5bgb1d53)
 ```
-The hash (`d09610e823cb5bgb1d53`) in the sourceMapping output is used to configure the Scala.js' `mapSourceURI` scalac option.
-When generating Source Maps, Scala.js will replace the prefix path of each Scala file with this hash value.
+The hash `d09610e823cb5bgb1d53` has been computed from the directory's canonical path using `sbt.io.Hash.halfHashString(f.getCanonicalPath)` and is used to configure the Scala.js' `mapSourceURI` scalac option.
+When generating Source Maps, Scala.js will replace the prefix path of each Scala file with its hash value.
 The hash uniquely identifies a file/directory and can be safely exposed to the users as the full file path is not disclosed.
 
 ## Source Maps
