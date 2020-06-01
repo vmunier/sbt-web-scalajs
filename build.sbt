@@ -1,7 +1,7 @@
 enablePlugins(SbtPlugin)
 
 name := "sbt-web-scalajs"
-version := "1.1.0-0.6"
+version := "1.1.0"
 organization := "com.vmunier"
 
 homepage := Some(url("https://github.com/vmunier/sbt-web-scalajs"))
