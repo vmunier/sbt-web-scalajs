@@ -16,7 +16,8 @@ object ScalaJSWeb extends AutoPlugin {
   override def requires: Plugins = ScalaJSPlugin && JSDependenciesPlugin
 
   object autoImport {
-    val sourceMappings = settingKey[Seq[(File, String)]]("Mappings of directories containing Scala files to their hashed canonical path")
+    val sourceMappings =
+      settingKey[Seq[(File, String)]]("Mappings of directories containing Scala files to their hashed canonical path")
   }
   import autoImport._
 
