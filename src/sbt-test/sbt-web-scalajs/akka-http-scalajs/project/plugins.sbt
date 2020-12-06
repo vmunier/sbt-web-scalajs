@@ -13,4 +13,4 @@ val scalaJSVersion = Option(System.getenv("SCALAJS_VERSION")).getOrElse("1.2.0")
 addSbtPlugin("org.scala-js"       % "sbt-scalajs"              % scalaJSVersion)
 
 addSbtPlugin("com.typesafe.sbt"   % "sbt-twirl"                % "1.5.0")
-addSbtPlugin("com.typesafe.sbt"   % "sbt-native-packager"      % "1.7.1")
+addSbtPlugin("com.typesafe.sbt"   % "sbt-native-packager"      % "1.7.6")

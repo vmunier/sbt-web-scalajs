@@ -1,7 +1,7 @@
 # ----
 # Test that source map files are present when enabling/disabling source map in both fastOptJS and fullOptJS
 
-> akka-http-scalajs/clean
+> root/clean
 
 $ exec chmod +x countScalaAndSourceMapFiles.sh
 
@@ -13,7 +13,7 @@ $ exec ./countScalaAndSourceMapFiles.sh 3 2
 
 > reload
 # cleaning needed, otherwise source map files are not generated
-> akka-http-scalajs/clean
+> root/clean
 
 $ exec echo "Test - Using FullOptStage, archive should contain source map files by default"
 > set scalaJSStage in Global := FullOptStage
@@ -21,7 +21,7 @@ $ exec echo "Test - Using FullOptStage, archive should contain source map files 
 $ exec ./countScalaAndSourceMapFiles.sh 3 2
 
 > reload
-> akka-http-scalajs/clean
+> root/clean
 
 $ exec echo "Test - Using FullOptStage with source map config set to false, archive should contain no source map files"
 > set scalaJSStage in Global := FullOptStage
@@ -33,7 +33,7 @@ $ exec echo "Test - Using FullOptStage with source map config set to false, arch
 $ exec ./countScalaAndSourceMapFiles.sh 0 0
 
 > reload
-> akka-http-scalajs/clean
+> root/clean
 
 $ exec echo "Test - Using FullOptStage with only one project's source map config set to true, archive should contain one source map file"
 > set scalaJSStage in Global := FullOptStage
@@ -45,7 +45,7 @@ $ exec ./countScalaAndSourceMapFiles.sh 2 1
 # Test sourceMappings
 
 > reload
-> akka-http-scalajs/clean
+> root/clean
 
 $ exec echo "Test - Archive should contain no Scala files when emptying sourceMappings in fullOptJS"
 > set scalaJSStage in Global := FullOptStage
@@ -59,7 +59,7 @@ $ exec echo "Test - Archive should still contain Scala files when scalaJSStage=F
 $ exec ./countScalaAndSourceMapFiles.sh 3 2
 
 > reload
-> akka-http-scalajs/clean
+> root/clean
 
 $ exec echo "Test - Archive should contain 2 Scala files when emptying sourceMappings for one project only"
 > set sourceMappings in secondClient := Seq.empty
