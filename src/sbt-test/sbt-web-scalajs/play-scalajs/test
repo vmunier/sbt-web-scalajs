@@ -29,7 +29,7 @@ $ exec wget -q localhost:9000
 
 $ exec chmod +x countScalaAndSourceMapFiles.sh
 
-> play-scalajs/clean
+> root/clean
 
 $ exec echo "Test - Using default FastOptStage, archive should contain source map files (.map)"
 $ exec echo "- 2 Scala files: 1 from client, 1 from sharedJs"
@@ -39,7 +39,7 @@ $ exec ./countScalaAndSourceMapFiles.sh 2 1
 
 > reload
 # cleaning needed, otherwise source map files are not generated
-> play-scalajs/clean
+> root/clean
 
 $ exec echo "Test - Using FullOptStage, archive should contain source map files by default"
 > set scalaJSStage in Global := FullOptStage
@@ -47,7 +47,7 @@ $ exec echo "Test - Using FullOptStage, archive should contain source map files 
 $ exec ./countScalaAndSourceMapFiles.sh 2 1
 
 > reload
-> play-scalajs/clean
+> root/clean
 
 $ exec echo "Test - Using FullOptStage with source map config set to false, archive should contain no source map files"
 > set scalaJSStage in Global := FullOptStage

@@ -1,5 +1,8 @@
 import sbtcrossproject.{crossProject, CrossType}
 
+lazy val root = (project in file("."))
+  .aggregate(server, client, sharedJs, sharedJvm)
+
 lazy val server = (project in file("server"))
   .settings(commonSettings)
   .settings(
@@ -37,7 +40,7 @@ lazy val client = (project in file("client"))
   .settings(
     scalaJSUseMainModuleInitializer := true,
     libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scalajs-dom" % "1.0.0"
+      "org.scala-js" %%% "scalajs-dom" % "1.1.0"
     )
   )
   .enablePlugins(ScalaJSPlugin, ScalaJSWeb)
@@ -52,7 +55,7 @@ lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
 
 lazy val commonSettings = Seq(
-  scalaVersion := "2.13.1",
+  scalaVersion := "2.13.2",
   organization := "com.example",
   version := "0.1.0-SNAPSHOT"
 )

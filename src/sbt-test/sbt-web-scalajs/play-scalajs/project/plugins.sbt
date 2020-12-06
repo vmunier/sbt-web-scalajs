@@ -12,4 +12,4 @@ sys.props.get("plugin.sbt-scalajs-crossproject.version") match {
 val scalaJSVersion = Option(System.getenv("SCALAJS_VERSION")).getOrElse("1.0.1")
 addSbtPlugin("org.scala-js"       % "sbt-scalajs"              % scalaJSVersion)
 
-addSbtPlugin("com.typesafe.play"         % "sbt-plugin"                % "2.8.1")
+addSbtPlugin("com.typesafe.play"         % "sbt-plugin"                % "2.8.5")
