@@ -52,7 +52,7 @@ $ exec ./countScalaAndSourceMapFiles.sh 2 1
 $ exec echo "Test - Using FullOptStage with source map config set to false, archive should contain no source map files"
 > set scalaJSStage in Global := FullOptStage
 # ThisBuild could be used with Scala.js v1.x, but we are also publishing to Scala.js v0.6.x
-> set scalaJSLinkerConfig in (client, Compile, fullOptJS) ~= (_.withSourceMap(false))
-> set scalaJSLinkerConfig in (sharedJs, Compile, fullOptJS) ~= (_.withSourceMap(false))
+> set scalaJSLinkerConfig in (client, Compile, fullLinkJS) ~= (_.withSourceMap(false))
+> set scalaJSLinkerConfig in (sharedJs, Compile, fullLinkJS) ~= (_.withSourceMap(false))
 > universal:packageBin
 $ exec ./countScalaAndSourceMapFiles.sh 0 0

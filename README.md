@@ -8,21 +8,15 @@ sbt-web-scalajs is a SBT plugin which allows you to use Scala.js along with any 
 
 ## Setup
 
-Specify the sbt version in `project/build.properties`, which needs to be 0.13.16 or higher (or sbt 1.x):
+Specify the sbt version in `project/build.properties` (you can find the latest version [here](https://www.scala-sbt.org/download.html)):
 ```
-sbt.version=1.3.10
+sbt.version=1.4.9
 ```
 
-If you want to use Scala.js 1.x, add the following plugins to `project/plugins.sbt`:
+Add the sbt-web-scalajs and Scala.js plugins to `project/plugins.sbt`:
 ```
 addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.1.0")
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.1.0")
-```
-
-Otherwise, if you prefer using Scala.js 0.6.x, add the following plugins to `project/plugins.sbt`:
-```
-addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.1.0-0.6")
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.33")
 ```
 
 Lastly, put the following configuration in `build.sbt`:
@@ -46,12 +40,12 @@ To see the plugin in action, you can run `sbt new` with one of these Giter8 temp
 
 Have a look at the [sbt-web-scalajs v1.1.0 release](https://github.com/vmunier/sbt-web-scalajs/releases/tag/v1.1.0), which details the breaking changes introduced in `v1.1.0`.
 
-## Selecting `fastOptJS` or `fullOptJS`
+## Selecting `fastLinkJS` or `fullLinkJS`
 
-sbt-web-scalajs looks up the `scalaJSStage` setting from the Scala.js projects to know whether to run `fastOptJS` or `fullOptJS`.
+sbt-web-scalajs looks up the `scalaJSStage` setting from the Scala.js projects to know whether to run `fastLinkJS` or `fullLinkJS`.
 
-* `scalaJSStage` setting is set to `FastOptStage` by default, which means sbt-web-scalajs runs `fastOptJS` by default.
-* `scalaJSStage := FullOptStage` can be set in a Scala.js project, so that sbt-web-scalajs runs `fullOptJS` for that project.
+* `scalaJSStage` setting is set to `FastOptStage` by default, which means sbt-web-scalajs runs `fastLinkJS` by default.
+* `scalaJSStage := FullOptStage` can be set in a Scala.js project, so that sbt-web-scalajs runs `fullLinkJS` for that project.
 * `scalaJSStage in Global := FullOptStage` sets `FullOptStage` for all the Scala.js projects from the build.
 
 ## How it works
@@ -71,8 +65,8 @@ Defined in `WebScalaJS`:
 
   More precisely, `scalaJSPipeline` performs the following tasks for each project defined in the `scalaJSProjects` setting:
   * If Scala.js' `scalaJSStage` setting is equal to:
-    - `FastOptStage`, then run `packageJSDependencies` and `fastOptJS`.
-    - `FullOptStage`, then run `packageJSDependencies`, `packageMinifiedJSDependencies` and `fullOptJS`.
+    - `FastOptStage`, then run `packageJSDependencies` and `fastLinkJS`.
+    - `FullOptStage`, then run `packageJSDependencies`, `packageMinifiedJSDependencies` and `fullLinkJS`.
 
     The resulting JavaScript files are copied to the sbt-web assets, along with their corresponding source map files (.map) if they exist.
   * Read the ScalaJSWeb's `sourceMappings` setting from the project and its transitive dependencies.
@@ -82,13 +76,13 @@ Defined in `WebScalaJS`:
 Defined in `ScalaJSWeb`:
 * `sourceMappings` setting lists the directories containing Scala files to be used for Source Maps.
 The Scala files from the Scala.js project need to be copied and packaged, so that the server can serve these files to the browser when using Source Maps.
-`sourceMappings` is scoped under `Compile`/`Test` and `fastOptJS`/`fullOptJS`. Let's have a look at the value of `Compile/fastOptJS/sourceMappings` in SBT:
+`sourceMappings` is scoped under `Compile`/`Test` and `fastLinkJS`/`fullLinkJS`. Let's have a look at the value of `Compile/fastLinkJS/sourceMappings` in SBT:
 ```
 > project client
-> show Compile/fastOptJS/sourceMappings
-[info] * (<path>/client/src/main/scala, d09610e823cb5bgb1d53)
+> show Compile/fastLinkJS/sourceMappings
+[info] * (<path>/client/src/main/scala, scala/ae0a44)
 ```
-The hash `d09610e823cb5bgb1d53` has been computed from the directory's canonical path using `sbt.io.Hash.halfHashString(f.getCanonicalPath)` and is used to configure the Scala.js' `mapSourceURI` scalac option.
+The hash `ae0a44` has been computed from the directory's canonical path using `sbt.io.Hash.trimHashString(f.getCanonicalPath, 6)` and is used to configure the Scala.js' `mapSourceURI` scalac option.
 When generating Source Maps, Scala.js will replace the prefix path of each Scala file with its hash value.
 The hash uniquely identifies a file/directory and can be safely exposed to the users as the full file path is not disclosed.
 
@@ -96,10 +90,10 @@ The hash uniquely identifies a file/directory and can be safely exposed to the u
 
 The plugin copies the Scala files to the sbt-web assets, so that they can be served to the browser and used for Source Maps.
 
-By default, Source Maps are enabled in both `fastOptJS` and `fullOptJS`.
-However, Source Maps can easily be disabled in `fullOptJS` by adding the following line to the Scala.js project's settings:
+By default, Source Maps are enabled in both `fastLinkJS` and `fullLinkJS`.
+However, Source Maps can easily be disabled in `fullLinkJS` by adding the following line to the Scala.js project's settings:
 ```
-scalaJSLinkerConfig in (Compile, fullOptJS) ~= (_.withSourceMap(false))
+scalaJSLinkerConfig in (Compile, fullLinkJS) ~= (_.withSourceMap(false))
 ```
 When Source Maps are disabled, the `.map` files and the Scala files are not copied and do not exist in the sbt-web assets.
 
@@ -115,12 +109,6 @@ compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value
 
 ## Publish a new version of the plugin
 
-For Scala.js 1.x (no need to cross publish as Scala.js 1.x only supports SBT 0.13.x):
 ```
 $ sbt publish
-```
-
-For Scala.js 0.6.x:
-```
-$ SCALAJS_VERSION=0.6.32 sbt ^publish
 ```

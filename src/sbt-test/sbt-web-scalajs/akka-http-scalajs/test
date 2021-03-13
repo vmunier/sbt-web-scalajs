@@ -1,5 +1,5 @@
 # ----
-# Test that source map files are present when enabling/disabling source map in both fastOptJS and fullOptJS
+# Test that source map files are present when enabling/disabling source map in both fastLinkJS and fullLinkJS
 
 > root/clean
 
@@ -26,9 +26,9 @@ $ exec ./countScalaAndSourceMapFiles.sh 3 2
 $ exec echo "Test - Using FullOptStage with source map config set to false, archive should contain no source map files"
 > set scalaJSStage in Global := FullOptStage
 # ThisBuild could be used with Scala.js v1.x, but we are also publishing to Scala.js v0.6.x
-> set scalaJSLinkerConfig in (firstClient, Compile, fullOptJS) ~= (_.withSourceMap(false))
-> set scalaJSLinkerConfig in (secondClient, Compile, fullOptJS) ~= (_.withSourceMap(false))
-> set scalaJSLinkerConfig in (sharedJs, Compile, fullOptJS) ~= (_.withSourceMap(false))
+> set scalaJSLinkerConfig in (firstClient, Compile, fullLinkJS) ~= (_.withSourceMap(false))
+> set scalaJSLinkerConfig in (secondClient, Compile, fullLinkJS) ~= (_.withSourceMap(false))
+> set scalaJSLinkerConfig in (sharedJs, Compile, fullLinkJS) ~= (_.withSourceMap(false))
 > universal:packageBin
 $ exec ./countScalaAndSourceMapFiles.sh 0 0
 
@@ -37,7 +37,7 @@ $ exec ./countScalaAndSourceMapFiles.sh 0 0
 
 $ exec echo "Test - Using FullOptStage with only one project's source map config set to true, archive should contain one source map file"
 > set scalaJSStage in Global := FullOptStage
-> set scalaJSLinkerConfig in (secondClient, Compile, fullOptJS) ~= (_.withSourceMap(false))
+> set scalaJSLinkerConfig in (secondClient, Compile, fullLinkJS) ~= (_.withSourceMap(false))
 > universal:packageBin
 $ exec ./countScalaAndSourceMapFiles.sh 2 1
 
@@ -47,13 +47,13 @@ $ exec ./countScalaAndSourceMapFiles.sh 2 1
 > reload
 > root/clean
 
-$ exec echo "Test - Archive should contain no Scala files when emptying sourceMappings in fullOptJS"
+$ exec echo "Test - Archive should contain no Scala files when emptying sourceMappings in fullLinkJS"
 > set scalaJSStage in Global := FullOptStage
-> set sourceMappings in (ThisBuild, Compile, fullOptJS) := Seq.empty
+> set sourceMappings in (ThisBuild, Compile, fullLinkJS) := Seq.empty
 > universal:packageBin
 $ exec ./countScalaAndSourceMapFiles.sh 0 2
 
-$ exec echo "Test - Archive should still contain Scala files when scalaJSStage=FastOptStage and sourceMappings is empty in fullOptJS only"
+$ exec echo "Test - Archive should still contain Scala files when scalaJSStage=FastOptStage and sourceMappings is empty in fullLinkJS only"
 > set scalaJSStage in Global := FastOptStage
 > universal:packageBin
 $ exec ./countScalaAndSourceMapFiles.sh 3 2

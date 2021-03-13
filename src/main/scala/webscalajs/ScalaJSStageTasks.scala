@@ -6,11 +6,6 @@ import sbt._
 
 private[webscalajs] object ScalaJSStageTasks {
 
-  val optJS: Initialize[TaskKey[Attributed[File]]] = onScalaJSStage(
-    Def.setting(fastOptJS),
-    Def.setting(fullOptJS)
-  )
-
   def onScalaJSStage[A](onFastOpt: => Initialize[A], onFullOpt: => Initialize[A]): Initialize[A] =
     Def.settingDyn {
       scalaJSStage.value match {

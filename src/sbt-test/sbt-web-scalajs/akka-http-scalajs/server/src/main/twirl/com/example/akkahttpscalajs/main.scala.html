@@ -8,6 +8,6 @@
   </head>
   <body>
    @content
-   @scalajs.html.scripts("client", name => s"/assets/$name", name => getClass.getResource(s"/public/$name") != null)
+   @findScript("client-opt/main.js", "client-fastopt/main.js")
   </body>
 </html>
