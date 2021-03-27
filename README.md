@@ -74,15 +74,39 @@ Defined in `WebScalaJS`:
     Copy all Scala files found in these directories to the sbt-web assets.
 
 Defined in `ScalaJSWeb`:
+* `jsMappings` task runs Scala.js `fastLinkJS`/`fullLinkJS` and convert output files to path mappings.
+`jsMappings` is scoped under `Compile`/`Test` and `fastLinkJS`/`fullLinkJS`. Let's have a look at the value of `Compile/fastLinkJS/jsMappings` in SBT:
+```
+> project client
+> show Compile/fastLinkJS/jsMappings
+[info] * (<path>/client/target/scala-2.13/client-fastopt/main.js.map,client-fastopt/main.js.map)
+[info] * (<path>/client/target/scala-2.13/client-fastopt/main.js,client-fastopt/main.js)
+```
+`jsMappings` calls `fastLinkJS`, which creates two files: `main.js.map` and `main.js`. The files are then converted to path mappings, i.e. a tuple of a file to a relative path.
+The `main.js` file has a `client-fastopt/main.js` relative path. `WebScalaJS` will copy `main.js` to the server sbt-web assets under `server/target/web/public/main/client-fastopt/main.js`.
+
+We can extend `jsMappings` to add the output of other Scala.js tasks. When using the [sbt-jsdependencies](https://github.com/scala-js/jsdependencies) plugin, we can update `jsMappings` in build.sbt as follows:
+```scala
+import com.typesafe.sbt.web.PathMapping
+
+val client = project.settings(
+  Compile / fastLinkJS / pathMappings += toPathMapping((Compile / packageJSDependencies).value),
+  Compile / fullLinkJS / pathMappings += toPathMapping((Compile / packageMinifiedJSDependencies).value),
+  ...
+).enablePlugins(ScalaJSPlugin, ScalaJSWeb, JSDependenciesPlugin)
+
+def toPathMapping(f: File): PathMapping = f -> f.getName
+```
+
 * `sourceMappings` setting lists the directories containing Scala files to be used for Source Maps.
 The Scala files from the Scala.js project need to be copied and packaged, so that the server can serve these files to the browser when using Source Maps.
-`sourceMappings` is scoped under `Compile`/`Test` and `fastLinkJS`/`fullLinkJS`. Let's have a look at the value of `Compile/fastLinkJS/sourceMappings` in SBT:
+Here's an example of what `sourceMappings` returns:
 ```
 > project client
 > show Compile/fastLinkJS/sourceMappings
 [info] * (<path>/client/src/main/scala, scala/ae0a44)
 ```
-The hash `ae0a44` has been computed from the directory's canonical path using `sbt.io.Hash.trimHashString(f.getCanonicalPath, 6)` and is used to configure the Scala.js' `mapSourceURI` scalac option.
+The hash `ae0a44` has been computed from the directory's canonical path using `sbt.io.Hash.trimHashString(f.getCanonicalPath, 6)` and is used to configure the Scala.js `mapSourceURI` scalac option.
 When generating Source Maps, Scala.js will replace the prefix path of each Scala file with its hash value.
 The hash uniquely identifies a file/directory and can be safely exposed to the users as the full file path is not disclosed.
 
@@ -91,7 +115,7 @@ The hash uniquely identifies a file/directory and can be safely exposed to the u
 The plugin copies the Scala files to the sbt-web assets, so that they can be served to the browser and used for Source Maps.
 
 By default, Source Maps are enabled in both `fastLinkJS` and `fullLinkJS`.
-However, Source Maps can easily be disabled in `fullLinkJS` by adding the following line to the Scala.js project's settings:
+However, Source Maps can easily be disabled in `fullLinkJS` by adding the following line to the Scala.js project settings:
 ```
 scalaJSLinkerConfig in (Compile, fullLinkJS) ~= (_.withSourceMap(false))
 ```

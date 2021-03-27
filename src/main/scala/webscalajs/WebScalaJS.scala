@@ -11,7 +11,7 @@ import sbt._
 import sbt.internal.io.Source
 import sbt.io.Path
 import webscalajs.ScalaJSStageTasks._
-import webscalajs.ScalaJSWeb.autoImport.{pathMappings, sourceMappings}
+import webscalajs.ScalaJSWeb.autoImport.{jsMappings, sourceMappings}
 
 /**
  * Auto-plugin added to SbtWeb projects
@@ -93,8 +93,8 @@ object WebScalaJS extends AutoPlugin {
   }
 
   private lazy val scalaJSTaskFiles: Initialize[Task[Seq[PathMapping]]] = onScalaJSStage(
-    fastLinkJS / pathMappings,
-    fullLinkJS / pathMappings
+    fastLinkJS / jsMappings,
+    fullLinkJS / jsMappings
   )
 
   lazy val sourcemapScalaFiles: Initialize[Task[Seq[PathMapping]]] = taskDyn {
