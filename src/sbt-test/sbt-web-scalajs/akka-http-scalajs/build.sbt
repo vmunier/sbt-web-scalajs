@@ -1,4 +1,5 @@
 import sbtcrossproject.{crossProject, CrossType}
+import org.scalajs.linker.interface.ModuleInitializer
 
 lazy val root = (project in file("."))
   .aggregate(server, firstClient, secondClient, sharedJs, sharedJvm)
@@ -24,10 +25,10 @@ lazy val firstClient = (project in file("firstClient")).settings(commonSettings)
   dependsOn(sharedJs)
 
 lazy val secondClient = (project in file("secondClient")).settings(commonSettings).settings(
-  scalaJSUseMainModuleInitializer := true,
-  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "1.1.0"
-).enablePlugins(ScalaJSPlugin, ScalaJSWeb).
-  dependsOn(sharedJs)
+  scalaJSModuleInitializers in Compile +=
+    ModuleInitializer.mainMethod("com.example.akkahttpscalajs.AppB", "main").withModuleID("b"),
+  scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) }
+).enablePlugins(ScalaJSPlugin, ScalaJSWeb)
 
 lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)

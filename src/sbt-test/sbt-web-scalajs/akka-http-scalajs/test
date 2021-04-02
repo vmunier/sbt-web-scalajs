@@ -7,9 +7,9 @@ $ exec chmod +x countScalaAndSourceMapFiles.sh
 
 $ exec echo "Test - Using default FastOptStage, archive should contain source map files (.map)"
 $ exec echo "- 3 Scala files: 1 from firstClient, 1 from secondClient, 1 from sharedJs"
-$ exec echo "- 2 source map files: 1 from firstClient, 1 from secondClient"
+$ exec echo "- 2 source map files: 1 from firstClient (main.js.map), 3 from secondClient (a-b.js.map, a.js.map, b.js.map)"
 > universal:packageBin
-$ exec ./countScalaAndSourceMapFiles.sh 3 2
+$ exec ./countScalaAndSourceMapFiles.sh 3 4
 
 > reload
 # cleaning needed, otherwise source map files are not generated
@@ -18,7 +18,7 @@ $ exec ./countScalaAndSourceMapFiles.sh 3 2
 $ exec echo "Test - Using FullOptStage, archive should contain source map files by default"
 > set Global / scalaJSStage := FullOptStage
 > universal:packageBin
-$ exec ./countScalaAndSourceMapFiles.sh 3 2
+$ exec ./countScalaAndSourceMapFiles.sh 3 4
 
 > reload
 > root/clean
@@ -50,20 +50,20 @@ $ exec echo "Test - Archive should contain no Scala files when emptying sourceMa
 > set scalaJSStage in Global := FullOptStage
 > set ThisBuild / Compile / fullLinkJS / sourceMappings := Seq.empty
 > universal:packageBin
-$ exec ./countScalaAndSourceMapFiles.sh 0 2
+$ exec ./countScalaAndSourceMapFiles.sh 0 4
 
 $ exec echo "Test - Archive should still contain Scala files when scalaJSStage=FastOptStage and sourceMappings is empty in fullLinkJS only"
 > set Global / scalaJSStage := FastOptStage
 > universal:packageBin
-$ exec ./countScalaAndSourceMapFiles.sh 3 2
+$ exec ./countScalaAndSourceMapFiles.sh 3 4
 
 > reload
 > root/clean
 
-$ exec echo "Test - Archive should contain 2 Scala files when emptying sourceMappings for one project only"
+$ exec echo "Test - Archive should contain Scala files when emptying sourceMappings for one project only"
 > set secondClient / sourceMappings := Seq.empty
 > universal:packageBin
-$ exec ./countScalaAndSourceMapFiles.sh 2 2
+$ exec ./countScalaAndSourceMapFiles.sh 2 4
 > set secondClient / scalaJSStage := FullOptStage
 > universal:packageBin
-$ exec ./countScalaAndSourceMapFiles.sh 2 2
+$ exec ./countScalaAndSourceMapFiles.sh 2 4

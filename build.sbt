@@ -7,7 +7,7 @@ organization := "com.vmunier"
 homepage := Some(url("https://github.com/vmunier/sbt-web-scalajs"))
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.5.0")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.5.1")
 addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.4.4")
 
 scalacOptions ++= Seq(
