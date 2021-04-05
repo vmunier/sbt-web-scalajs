@@ -7,11 +7,10 @@ lazy val server = (project in file("server"))
   .settings(commonSettings)
   .settings(
     scalaJSProjects := Seq(client),
-    pipelineStages in Assets := Seq(scalaJSPipeline),
+    Assets / pipelineStages := Seq(scalaJSPipeline),
     // triggers scalaJSPipeline when using compile or continuous compilation
-    compile in Compile := (compile in Compile).dependsOn(scalaJSPipeline).value,
+    Compile / compile := (Compile / compile).dependsOn(scalaJSPipeline).value,
     libraryDependencies ++= Seq(
-      "com.vmunier" %% "scalajs-scripts" % "1.1.4",
       guice,
       specs2 % Test
     ),

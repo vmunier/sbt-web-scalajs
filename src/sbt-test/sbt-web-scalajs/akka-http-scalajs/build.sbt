@@ -1,34 +1,39 @@
 import sbtcrossproject.{crossProject, CrossType}
+import org.scalajs.linker.interface.ModuleInitializer
 
 lazy val root = (project in file("."))
   .aggregate(server, firstClient, secondClient, sharedJs, sharedJvm)
 
 lazy val server = (project in file("server")).settings(commonSettings).settings(
   scalaJSProjects := Seq(firstClient, secondClient),
-  pipelineStages in Assets := Seq(scalaJSPipeline),
+  Assets / pipelineStages := Seq(scalaJSPipeline),
   // triggers scalaJSPipeline when using compile or continuous compilation
-  compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value,
+  Compile / compile := ((Compile / compile) dependsOn scalaJSPipeline).value,
   libraryDependencies ++= Seq(
     "com.typesafe.akka" %% "akka-http" % "10.1.13",
-    "com.typesafe.akka" %% "akka-stream" % "2.6.10",
-    "com.vmunier" %% "scalajs-scripts" % "1.1.4"
+    "com.typesafe.akka" %% "akka-stream" % "2.6.10"
   ),
-  WebKeys.packagePrefix in Assets := "public/",
-  managedClasspath in Runtime += (packageBin in Assets).value
+  Assets / WebKeys.packagePrefix := "public/",
+  Runtime / managedClasspath += (Assets / packageBin).value
 ).enablePlugins(SbtWeb, SbtTwirl, JavaAppPackaging).
   dependsOn(sharedJvm)
 
 lazy val firstClient = (project in file("firstClient")).settings(commonSettings).settings(
   scalaJSUseMainModuleInitializer := true,
-  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "1.1.0"
-).enablePlugins(ScalaJSPlugin, ScalaJSWeb).
+  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "1.1.0",
+  jsDependencies += "org.webjars" % "jquery" % "2.1.4" / "2.1.4/jquery.js",
+  Compile / fastLinkJS / jsMappings += toPathMapping((Compile / packageJSDependencies).value),
+  Compile / fullLinkJS / jsMappings += toPathMapping((Compile / packageMinifiedJSDependencies).value)
+).enablePlugins(ScalaJSPlugin, ScalaJSWeb, JSDependenciesPlugin).
   dependsOn(sharedJs)
 
+def toPathMapping(f: File): (File, String) = f -> f.getName
+
 lazy val secondClient = (project in file("secondClient")).settings(commonSettings).settings(
-  scalaJSUseMainModuleInitializer := true,
-  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "1.1.0"
-).enablePlugins(ScalaJSPlugin, ScalaJSWeb).
-  dependsOn(sharedJs)
+  Compile / scalaJSModuleInitializers +=
+    ModuleInitializer.mainMethod("com.example.akkahttpscalajs.AppB", "main").withModuleID("b"),
+  scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) }
+).enablePlugins(ScalaJSPlugin, ScalaJSWeb)
 
 lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
