@@ -6,15 +6,15 @@ lazy val root = (project in file("."))
 
 lazy val server = (project in file("server")).settings(commonSettings).settings(
   scalaJSProjects := Seq(firstClient, secondClient),
-  pipelineStages in Assets := Seq(scalaJSPipeline),
+  Assets / pipelineStages := Seq(scalaJSPipeline),
   // triggers scalaJSPipeline when using compile or continuous compilation
-  compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value,
+  Compile / compile := ((Compile / compile) dependsOn scalaJSPipeline).value,
   libraryDependencies ++= Seq(
     "com.typesafe.akka" %% "akka-http" % "10.1.13",
     "com.typesafe.akka" %% "akka-stream" % "2.6.10"
   ),
-  WebKeys.packagePrefix in Assets := "public/",
-  managedClasspath in Runtime += (packageBin in Assets).value
+  Assets / WebKeys.packagePrefix := "public/",
+  Runtime / managedClasspath += (Assets / packageBin).value
 ).enablePlugins(SbtWeb, SbtTwirl, JavaAppPackaging).
   dependsOn(sharedJvm)
 
@@ -25,7 +25,7 @@ lazy val firstClient = (project in file("firstClient")).settings(commonSettings)
   dependsOn(sharedJs)
 
 lazy val secondClient = (project in file("secondClient")).settings(commonSettings).settings(
-  scalaJSModuleInitializers in Compile +=
+  Compile / scalaJSModuleInitializers +=
     ModuleInitializer.mainMethod("com.example.akkahttpscalajs.AppB", "main").withModuleID("b"),
   scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) }
 ).enablePlugins(ScalaJSPlugin, ScalaJSWeb)

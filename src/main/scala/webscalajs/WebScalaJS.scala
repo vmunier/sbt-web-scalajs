@@ -42,13 +42,13 @@ object WebScalaJS extends AutoPlugin {
      * The Scala.js directories are added to unmanagedSourceDirectories to be part of the directories monitored by Play run.
      * @see playMonitoredFilesTask in Play, which creates the list of monitored directories https://github.com/playframework/playframework/blob/f5535aa08d639bae0f1734ebe3bc9aad7ce0f487/framework/src/sbt-plugin/src/main/scala/play/sbt/PlayCommands.scala#L85
      */
-    unmanagedSourceDirectories in Assets ++= monitoredScalaJSDirectories.value,
+    Assets / unmanagedSourceDirectories ++= monitoredScalaJSDirectories.value,
     monitoredScalaJSDirectories := monitoredScalaJSDirectoriesSetting.value,
     /**
      * excludeFilter is updated to prevent SbtWeb from adding any descendant files from the Scala.js directories.
      * @see where excludeFilter is used in SbtWeb https://github.com/sbt/sbt-web/blob/cb7585f44fc1a00edca085a361f88cc1bf5ddd13/src/main/scala/com/typesafe/sbt/web/SbtWeb.scala#L245
      */
-    excludeFilter in Assets := (excludeFilter in Assets).value || scalaJSDirectoriesFilter.value,
+    Assets / excludeFilter := (Assets / excludeFilter).value || scalaJSDirectoriesFilter.value,
     scalaJSDirectoriesFilter := monitoredScalaJSDirectories.value
       .map(scalaJSDir => new SimpleFileFilter(f => scalaJSDir.getCanonicalPath == f.getCanonicalPath))
       .foldLeft(NothingFilter: FileFilter)(_ || _),
@@ -56,7 +56,7 @@ object WebScalaJS extends AutoPlugin {
       taskOnProjects(transitiveDependencies(scalaJSProjects.value.toRefs), watchSources)
     }.value,
     watchSources ++= scalaJSWatchSources.value,
-    includeFilter in scalaJSPipeline := GlobFilter("*")
+    scalaJSPipeline / includeFilter := GlobFilter("*")
   )
 
   implicit private class ProjectsImplicits(projects: Seq[Project]) {
@@ -76,8 +76,8 @@ object WebScalaJS extends AutoPlugin {
   }
 
   private def scalaJSPipelineTask: Initialize[Task[Pipeline.Stage]] = task {
-    val include = (includeFilter in scalaJSPipeline).value
-    val exclude = (excludeFilter in scalaJSPipeline).value
+    val include = (scalaJSPipeline / includeFilter).value
+    val exclude = (scalaJSPipeline / excludeFilter).value
     val optFiles = scalaJSTaskMappings.value
     val optSourcemapScalaFiles = sourcemapScalaFiles.value
 
