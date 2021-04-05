@@ -58,20 +58,20 @@ object ScalaJSWeb extends AutoPlugin {
       file <- directory.listFiles()
     } yield file -> s"${directory.getName}/${file.getName}"
 
-  private def scalaJSStageSettings(optJS: TaskKey[Attributed[Report]]): Seq[Setting[_]] =
+  private def scalaJSStageSettings(linkJS: TaskKey[Attributed[Report]]): Seq[Setting[_]] =
     Seq(
       // Pick up value in ThisBuild if already defined
-      optJS / sourceMappings := (optJS / sourceMappings).?.value.getOrElse {
-        if ((optJS / scalaJSLinkerConfig).value.sourceMap)
+      linkJS / sourceMappings := (linkJS / sourceMappings).?.value.getOrElse {
+        if ((linkJS / scalaJSLinkerConfig).value.sourceMap)
           toSourceMappings(
             (Compile / unmanagedSourceDirectories).value,
-            (optJS / sourceMappingsTargetDirectoryName).value
+            (linkJS / sourceMappingsTargetDirectoryName).value
           )
         else
           Seq.empty
       },
-      optJS / sourceMappingsToScalacOptions := toScalacOptions,
-      optJS / sourceMappingsTargetDirectoryName := "scala"
+      linkJS / sourceMappingsToScalacOptions := toScalacOptions,
+      linkJS / sourceMappingsTargetDirectoryName := "scala"
     )
 
   private def toScalacOptions(sourceMappings: Seq[PathMapping]): Seq[String] =

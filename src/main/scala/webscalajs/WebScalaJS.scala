@@ -78,12 +78,12 @@ object WebScalaJS extends AutoPlugin {
   private def scalaJSPipelineTask: Initialize[Task[Pipeline.Stage]] = task {
     val include = (scalaJSPipeline / includeFilter).value
     val exclude = (scalaJSPipeline / excludeFilter).value
-    val optFiles = scalaJSTaskMappings.value
-    val optSourcemapScalaFiles = sourcemapScalaFiles.value
+    val jsFiles = scalaJSTaskMappings.value
+    val scalaFiles = sourcemapScalaFiles.value
 
     mappings: Seq[PathMapping] => {
       val filtered = filterMappings(mappings, include, exclude)
-      filtered ++ optFiles ++ optSourcemapScalaFiles
+      filtered ++ jsFiles ++ scalaFiles
     }
   }
 

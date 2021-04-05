@@ -82,8 +82,10 @@ Defined in `ScalaJSWeb`:
 [info] * (<path>/client/target/scala-2.13/client-fastopt/main.js.map,client-fastopt/main.js.map)
 [info] * (<path>/client/target/scala-2.13/client-fastopt/main.js,client-fastopt/main.js)
 ```
-`jsMappings` calls `fastLinkJS`, which creates two files: `main.js.map` and `main.js`. The files are then converted to path mappings, i.e. a tuple of a file to a relative path.
-The `main.js` file has a `client-fastopt/main.js` relative path. `WebScalaJS` will copy `main.js` to the server sbt-web assets under `server/target/web/public/main/client-fastopt/main.js`.
+`jsMappings` calls `fastLinkJS`, which creates two files: `main.js.map` and `main.js`.
+The files are then converted to path mappings, i.e. a tuple of a file to a relative path.
+The `main.js` file has a `client-fastopt/main.js` relative path.
+`WebScalaJS` will copy `main.js` to the server sbt-web assets under `server/target/web/public/main/client-fastopt/main.js`.
 
 We can extend `jsMappings` to add the output of other Scala.js tasks. When using the [sbt-jsdependencies](https://github.com/scala-js/jsdependencies) plugin, we can update `jsMappings` in build.sbt as follows:
 ```scala
