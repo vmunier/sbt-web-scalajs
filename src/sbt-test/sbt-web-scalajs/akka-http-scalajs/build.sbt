@@ -20,9 +20,14 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
 
 lazy val firstClient = (project in file("firstClient")).settings(commonSettings).settings(
   scalaJSUseMainModuleInitializer := true,
-  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "1.1.0"
-).enablePlugins(ScalaJSPlugin, ScalaJSWeb).
+  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "1.1.0",
+  jsDependencies += "org.webjars" % "jquery" % "2.1.4" / "2.1.4/jquery.js",
+  Compile / fastLinkJS / jsMappings += toPathMapping((Compile / packageJSDependencies).value),
+  Compile / fullLinkJS / jsMappings += toPathMapping((Compile / packageMinifiedJSDependencies).value)
+).enablePlugins(ScalaJSPlugin, ScalaJSWeb, JSDependenciesPlugin).
   dependsOn(sharedJs)
+
+def toPathMapping(f: File): (File, String) = f -> f.getName
 
 lazy val secondClient = (project in file("secondClient")).settings(commonSettings).settings(
   Compile / scalaJSModuleInitializers +=

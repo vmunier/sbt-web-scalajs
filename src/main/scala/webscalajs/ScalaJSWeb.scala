@@ -48,11 +48,11 @@ object ScalaJSWeb extends AutoPlugin {
       ).value
       toScalacOptions(mappings)
     },
-    fastLinkJS / jsMappings := toPathMappings(fastLinkJS.value),
-    fullLinkJS / jsMappings := toPathMappings(fullLinkJS.value)
+    fastLinkJS / jsMappings := toJsMappings(fastLinkJS.value),
+    fullLinkJS / jsMappings := toJsMappings(fullLinkJS.value)
   ) ++ scalaJSStageSettings(fastLinkJS) ++ scalaJSStageSettings(fullLinkJS)
 
-  private def toPathMappings(report: Attributed[Report]): Seq[PathMapping] =
+  private def toJsMappings(report: Attributed[Report]): Seq[PathMapping] =
     for {
       directory <- report.metadata.get(scalaJSLinkerOutputDirectory.key).toSeq
       file <- directory.listFiles()

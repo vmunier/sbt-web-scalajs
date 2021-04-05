@@ -92,8 +92,8 @@ We can extend `jsMappings` to add the output of other Scala.js tasks. When using
 import com.typesafe.sbt.web.PathMapping
 
 val client = project.settings(
-  Compile / fastLinkJS / pathMappings += toPathMapping((Compile / packageJSDependencies).value),
-  Compile / fullLinkJS / pathMappings += toPathMapping((Compile / packageMinifiedJSDependencies).value),
+  Compile / fastLinkJS / jsMappings += toPathMapping((Compile / packageJSDependencies).value),
+  Compile / fullLinkJS / jsMappings += toPathMapping((Compile / packageMinifiedJSDependencies).value),
   ...
 ).enablePlugins(ScalaJSPlugin, ScalaJSWeb, JSDependenciesPlugin)
 
