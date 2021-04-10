@@ -23,7 +23,7 @@ Lastly, put the following configuration in `build.sbt`:
 ```
 lazy val server = project.settings(
   scalaJSProjects := Seq(client),
-  pipelineStages in Assets := Seq(scalaJSPipeline)
+  Assets / pipelineStages := Seq(scalaJSPipeline)
 ).enablePlugins(SbtWeb)
 
 lazy val client = project.enablePlugins(ScalaJSPlugin, ScalaJSWeb)
@@ -46,7 +46,7 @@ sbt-web-scalajs looks up the `scalaJSStage` setting from the Scala.js projects t
 
 * `scalaJSStage` setting is set to `FastOptStage` by default, which means sbt-web-scalajs runs `fastLinkJS` by default.
 * `scalaJSStage := FullOptStage` can be set in a Scala.js project, so that sbt-web-scalajs runs `fullLinkJS` for that project.
-* `scalaJSStage in Global := FullOptStage` sets `FullOptStage` for all the Scala.js projects from the build.
+* `Global / scalaJSStage := FullOptStage` sets `FullOptStage` for all the Scala.js projects from the build.
 
 ## How it works
 
