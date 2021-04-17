@@ -70,14 +70,19 @@ object ScalaJSWeb extends AutoPlugin {
         else
           Seq.empty
       },
-      linkJS / sourceMappingsToScalacOptions := toScalacOptions,
+      linkJS / sourceMappingsToScalacOptions := toScalacOptions(scalaVersion.value),
       linkJS / sourceMappingsTargetDirectoryName := "scala"
     )
 
-  private def toScalacOptions(sourceMappings: Seq[PathMapping]): Seq[String] =
+  private def toScalacOptions(scalaVersion: String)(sourceMappings: Seq[PathMapping]): Seq[String] =
     for ((file, newPrefix) <- sourceMappings) yield {
+      val optionName =
+        if (ScalaArtifacts.isScala3(scalaVersion))
+          "-scalajs-mapSourceURI"
+        else
+          "-P:scalajs:mapSourceURI"
       val oldPrefix = file.getCanonicalFile.toURI
-      s"-P:scalajs:mapSourceURI:$oldPrefix->../$newPrefix/"
+      s"$optionName:$oldPrefix->../$newPrefix/"
     }
 
   /**
