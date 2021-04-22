@@ -4,7 +4,7 @@ import com.typesafe.sbt.web.PathMapping
 import org.scalajs.linker.interface.Report
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-import sbt.Def.settingKey
+import sbt.Def.{Initialize, setting, settingKey}
 import sbt.Keys._
 import sbt._
 import webscalajs.ScalaJSStageTasks.onScalaJSStage
@@ -17,6 +17,14 @@ object ScalaJSWeb extends AutoPlugin {
   override val requires: Plugins = ScalaJSPlugin
 
   private val HashLength: Int = 6
+
+  private val isScala3: Initialize[Boolean] = setting(
+    CrossVersion.partialVersion(scalaVersion.value).exists(_._1 == 3)
+  )
+
+  private val scalaJSCompilerOption: Initialize[String] = setting(
+    if (isScala3.value) "-scalajs-mapSourceURI" else "-P:scalajs:mapSourceURI"
+  )
 
   object autoImport {
     val jsMappings =
@@ -70,19 +78,14 @@ object ScalaJSWeb extends AutoPlugin {
         else
           Seq.empty
       },
-      linkJS / sourceMappingsToScalacOptions := toScalacOptions(scalaVersion.value),
+      linkJS / sourceMappingsToScalacOptions := toScalacOptions(scalaJSCompilerOption.value),
       linkJS / sourceMappingsTargetDirectoryName := "scala"
     )
 
-  private def toScalacOptions(scalaVersion: String)(sourceMappings: Seq[PathMapping]): Seq[String] =
+  private def toScalacOptions(scalaJSOption: String)(sourceMappings: Seq[PathMapping]): Seq[String] =
     for ((file, newPrefix) <- sourceMappings) yield {
-      val optionName =
-        if (ScalaArtifacts.isScala3(scalaVersion))
-          "-scalajs-mapSourceURI"
-        else
-          "-P:scalajs:mapSourceURI"
       val oldPrefix = file.getCanonicalFile.toURI
-      s"$optionName:$oldPrefix->../$newPrefix/"
+      s"$scalaJSOption:$oldPrefix->../$newPrefix/"
     }
 
   /**
