@@ -4,7 +4,7 @@ import com.typesafe.sbt.web.PathMapping
 import org.scalajs.linker.interface.Report
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-import sbt.Def.{Initialize, setting, settingKey}
+import sbt.Def.{setting, settingKey, Initialize}
 import sbt.Keys._
 import sbt._
 import webscalajs.ScalaJSStageTasks.onScalaJSStage
