@@ -1,5 +1,5 @@
 @(scripts: String*)
 
 @scripts.find(name => getClass.getResource(s"/public/$name") != null).map { asset =>
-  <script src=s"assets/$asset" type="text/javascript"></script>
+  <script src="assets/@asset" type="text/javascript"></script>
 }
