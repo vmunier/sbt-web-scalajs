@@ -15,7 +15,7 @@ sbt.version=1.5.1
 
 Add the sbt-web-scalajs and Scala.js plugins to `project/plugins.sbt`:
 ```
-addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.1.0")
+addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.2.0")
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.5.1")
 ```
 
@@ -36,9 +36,9 @@ To see the plugin in action, you can run `sbt new` with one of these Giter8 temp
 - [Play with Scala.js](https://github.com/vmunier/play-scalajs.g8): `sbt new vmunier/play-scalajs.g8`
 - [Akka HTTP with Scala.js](https://github.com/vmunier/akka-http-scalajs.g8): `sbt new vmunier/akka-http-scalajs.g8`
 
-## Upgrade to `v1.1.0`
+## Releases
 
-Have a look at the [sbt-web-scalajs v1.1.0 release](https://github.com/vmunier/sbt-web-scalajs/releases/tag/v1.1.0), which details the breaking changes introduced in `v1.1.0`.
+Have a look at the [releases](https://github.com/vmunier/sbt-web-scalajs/releases) to find out about the new features, bug fixes and how to upgrade when breaking changes were introduced.
 
 ## Selecting `fastLinkJS` or `fullLinkJS`
 
