@@ -10,13 +10,13 @@ sbt-web-scalajs is a SBT plugin which allows you to use Scala.js along with any 
 
 Specify the sbt version in `project/build.properties` (you can find the latest version [here](https://www.scala-sbt.org/download.html)):
 ```
-sbt.version=1.5.0
+sbt.version=1.5.1
 ```
 
 Add the sbt-web-scalajs and Scala.js plugins to `project/plugins.sbt`:
 ```
 addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.1.0")
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.1.0")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.5.1")
 ```
 
 Lastly, put the following configuration in `build.sbt`:
@@ -135,6 +135,4 @@ compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value
 
 ## Publish a new version of the plugin
 
-```
-$ sbt publish
-```
+New versions are automatically published to Sonatype when creating a git tag, thanks to [sbt-ci-release](https://github.com/olafurpg/sbt-ci-release).
