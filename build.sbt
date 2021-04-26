@@ -1,11 +1,21 @@
+inThisBuild(List(
+  organization := "com.vmunier",
+  homepage := Some(url("https://github.com/vmunier/sbt-web-scalajs")),
+  licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+  developers := List(
+    Developer(
+      "vmunier",
+      "Vincent Munier",
+      "",
+      url("https://github.com/vmunier")
+    )
+  ),
+  dynverSeparator := "-"
+))
+
 enablePlugins(SbtPlugin)
 
 name := "sbt-web-scalajs"
-version := "1.2.0-SNAPSHOT"
-organization := "com.vmunier"
-
-homepage := Some(url("https://github.com/vmunier/sbt-web-scalajs"))
-licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
 
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.5.1")
 addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.4.4")
@@ -21,24 +31,5 @@ scalacOptions ++= Seq(
 
 scalafmtOnCompile := true
 
-scriptedLaunchOpts ++= Seq(
-  s"-Dplugin.version=${version.value}"
-)
+scriptedLaunchOpts += s"-Dplugin.version=${version.value}"
 scriptedBufferLog := false
-
-pomExtra :=
-  <scm>
-    <url>git@github.com:vmunier/sbt-web-scalajs.git</url>
-    <connection>scm:git:git@github.com:vmunier/sbt-web-scalajs.git</connection>
-  </scm>
-  <developers>
-    <developer>
-      <id>vmunier</id>
-      <name>Vincent Munier</name>
-      <url>https://github.com/vmunier</url>
-    </developer>
-  </developers>
-
-publishMavenStyle := false
-bintrayRepository := "scalajs"
-bintrayOrganization := None
