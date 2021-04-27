@@ -1,7 +1,7 @@
 # sbt-web-scalajs
 
 [![License](http://img.shields.io/:license-Apache%202-red.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt)
-[![Download](https://api.bintray.com/packages/vmunier/scalajs/sbt-web-scalajs/images/download.svg) ](https://bintray.com/vmunier/scalajs/sbt-web-scalajs/_latestVersion)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.vmunier/sbt-web-scalajs/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.vmunier/sbt-web-scalajs)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/vmunier/sbt-web-scalajs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 sbt-web-scalajs is a SBT plugin which allows you to use Scala.js along with any sbt-web server. It uses the [sbt-web](https://github.com/sbt/sbt-web) and [scala-js](https://github.com/scala-js/scala-js) plugins.
@@ -119,7 +119,7 @@ The plugin copies the Scala files to the sbt-web assets, so that they can be ser
 By default, Source Maps are enabled in both `fastLinkJS` and `fullLinkJS`.
 However, Source Maps can easily be disabled in `fullLinkJS` by adding the following line to the Scala.js project settings:
 ```
-scalaJSLinkerConfig in (Compile, fullLinkJS) ~= (_.withSourceMap(false))
+Compile / fullLinkJS / scalaJSLinkerConfig ~= (_.withSourceMap(false))
 ```
 When Source Maps are disabled, the `.map` files and the Scala files are not copied and do not exist in the sbt-web assets.
 
@@ -130,7 +130,7 @@ Note that Source Maps only get requested by the browser when the DevTools is ope
 The plugin also watches files from the Scala.js projects.
 Redefine `compile` to trigger `scalaJSPipeline` when using `compile`, `~compile`, `~run`:
 ```
-compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value
+Compile / compile := ((Compile / compile) dependsOn scalaJSPipeline).value
 ```
 
 ## Publish a new version of the plugin
