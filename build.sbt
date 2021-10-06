@@ -17,7 +17,7 @@ enablePlugins(SbtPlugin)
 
 name := "sbt-web-scalajs"
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.7.0")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.7.1")
 addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.4.4")
 
 scalacOptions ++= Seq(
