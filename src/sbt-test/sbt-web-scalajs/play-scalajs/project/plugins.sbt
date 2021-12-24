@@ -5,4 +5,4 @@ sys.props.get("plugin.version") match {
 }
 
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.0.0")
-addSbtPlugin("com.typesafe.play"  % "sbt-plugin"               % "2.8.8")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.8")

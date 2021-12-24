@@ -9,10 +9,9 @@ object Implicits {
 
   /** Twirl marshallers for Xml, Html and Txt mediatypes */
   implicit val twirlHtmlMarshaller = twirlMarshaller[Html](`text/html`)
-  implicit val twirlTxtMarshaller  = twirlMarshaller[Txt](`text/plain`)
-  implicit val twirlXmlMarshaller  = twirlMarshaller[Xml](`text/xml`)
+  implicit val twirlTxtMarshaller = twirlMarshaller[Txt](`text/plain`)
+  implicit val twirlXmlMarshaller = twirlMarshaller[Xml](`text/xml`)
 
-  def twirlMarshaller[A](contentType: MediaType): ToEntityMarshaller[A] = {
+  def twirlMarshaller[A](contentType: MediaType): ToEntityMarshaller[A] =
     Marshaller.StringMarshaller.wrap(contentType)(_.toString)
-  }
 }

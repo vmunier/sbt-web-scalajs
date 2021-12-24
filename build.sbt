@@ -1,17 +1,19 @@
-inThisBuild(List(
-  organization := "com.vmunier",
-  homepage := Some(url("https://github.com/vmunier/sbt-web-scalajs")),
-  licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-  developers := List(
-    Developer(
-      "vmunier",
-      "Vincent Munier",
-      "",
-      url("https://github.com/vmunier")
-    )
-  ),
-  dynverSeparator := "-"
-))
+inThisBuild(
+  List(
+    organization := "com.vmunier",
+    homepage := Some(url("https://github.com/vmunier/sbt-web-scalajs")),
+    licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    developers := List(
+      Developer(
+        "vmunier",
+        "Vincent Munier",
+        "",
+        url("https://github.com/vmunier")
+      )
+    ),
+    dynverSeparator := "-"
+  )
+)
 
 enablePlugins(SbtPlugin)
 

@@ -9,9 +9,8 @@ object AppA {
 
 object AppB {
   @JSExportTopLevel(name = "start", moduleID = "b")
-  def b(): Unit = {
+  def b(): Unit =
     println("hello from b")
-  }
 
   def main(): Unit = println("hello b.main")
 }
