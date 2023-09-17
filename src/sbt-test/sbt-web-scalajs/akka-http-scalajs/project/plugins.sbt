@@ -1,10 +1,12 @@
+ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
+
 sys.props.get("plugin.version") match {
   case Some(version) => addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % version)
   case _ => sys.error("""|The system property 'plugin.version' is not defined.
                          |Specify this property using the scriptedLaunchOpts -D.""".stripMargin)
 }
 
-addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.0.0")
+addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.2")
 addSbtPlugin("org.scala-js"       % "sbt-jsdependencies"       % "1.0.2")
-addSbtPlugin("com.typesafe.sbt"   % "sbt-twirl"                % "1.5.1")
-addSbtPlugin("com.typesafe.sbt"   % "sbt-native-packager"      % "1.8.1")
+addSbtPlugin("com.typesafe.play"  % "sbt-twirl"                % "1.6.0")
+addSbtPlugin("com.github.sbt"     % "sbt-native-packager"      % "1.9.16")
