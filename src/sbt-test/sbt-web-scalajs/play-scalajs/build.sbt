@@ -1,5 +1,5 @@
 ThisBuild / organization := "com.example"
-ThisBuild / scalaVersion := "2.13.5"
+ThisBuild / scalaVersion := "2.13.12"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
 lazy val root = (project in file("."))
@@ -36,7 +36,7 @@ lazy val server = project.settings(
 lazy val client = project.settings(
   scalaJSUseMainModuleInitializer := true,
   libraryDependencies ++= Seq(
-    "org.scala-js" %%% "scalajs-dom" % "1.1.0"
+    "org.scala-js" %%% "scalajs-dom" % "2.6.0"
   )
 ).enablePlugins(ScalaJSPlugin, ScalaJSWeb)
   .dependsOn(sharedJs)

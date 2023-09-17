@@ -1,7 +1,7 @@
 import org.scalajs.linker.interface.ModuleInitializer
 
 ThisBuild / organization := "com.example"
-ThisBuild / scalaVersion := "2.13.5"
+ThisBuild / scalaVersion := "2.13.12"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
 lazy val root = (project in file("."))
@@ -13,8 +13,8 @@ lazy val server = project.settings(
   // triggers scalaJSPipeline when using compile or continuous compilation
   Compile / compile := ((Compile / compile) dependsOn scalaJSPipeline).value,
   libraryDependencies ++= Seq(
-    "com.typesafe.akka" %% "akka-http" % "10.2.4",
-    "com.typesafe.akka" %% "akka-stream" % "2.6.14"
+    "com.typesafe.akka" %% "akka-http" % "10.5.2",
+    "com.typesafe.akka" %% "akka-stream" % "2.8.4"
   ),
   Assets / WebKeys.packagePrefix := "public/",
   Runtime / managedClasspath += (Assets / packageBin).value
@@ -23,7 +23,7 @@ lazy val server = project.settings(
 
 lazy val firstClient = project.settings(
   scalaJSUseMainModuleInitializer := true,
-  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "1.1.0",
+  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "2.6.0",
   jsDependencies += "org.webjars" % "jquery" % "2.1.4" / "2.1.4/jquery.js",
   Compile / fastLinkJS / jsMappings += toPathMapping((Compile / packageJSDependencies).value),
   Compile / fullLinkJS / jsMappings += toPathMapping((Compile / packageMinifiedJSDependencies).value)
