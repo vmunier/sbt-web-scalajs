@@ -36,7 +36,7 @@ lazy val server = project.settings(
 lazy val client = project.settings(
   scalaJSUseMainModuleInitializer := true,
   libraryDependencies ++= Seq(
-    "org.scala-js" %%% "scalajs-dom" % "2.6.0"
+    "org.scala-js" %%% "scalajs-dom" % "2.8.0"
   )
 ).enablePlugins(ScalaJSPlugin, ScalaJSWeb)
   .dependsOn(sharedJs)

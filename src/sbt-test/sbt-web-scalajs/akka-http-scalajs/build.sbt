@@ -12,9 +12,10 @@ lazy val server = project.settings(
   Assets / pipelineStages := Seq(scalaJSPipeline),
   // triggers scalaJSPipeline when using compile or continuous compilation
   Compile / compile := ((Compile / compile) dependsOn scalaJSPipeline).value,
+  resolvers += "Akka library repository".at("https://repo.akka.io/maven"),
   libraryDependencies ++= Seq(
-    "com.typesafe.akka" %% "akka-http" % "10.5.2",
-    "com.typesafe.akka" %% "akka-stream" % "2.8.4"
+    "com.typesafe.akka" %% "akka-http" % "10.6.0",
+    "com.typesafe.akka" %% "akka-stream" % "2.9.0"
   ),
   Assets / WebKeys.packagePrefix := "public/",
   Runtime / managedClasspath += (Assets / packageBin).value
@@ -23,7 +24,7 @@ lazy val server = project.settings(
 
 lazy val firstClient = project.settings(
   scalaJSUseMainModuleInitializer := true,
-  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "2.6.0",
+  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "2.8.0",
   jsDependencies += "org.webjars" % "jquery" % "2.1.4" / "2.1.4/jquery.js",
   Compile / fastLinkJS / jsMappings += toPathMapping((Compile / packageJSDependencies).value),
   Compile / fullLinkJS / jsMappings += toPathMapping((Compile / packageMinifiedJSDependencies).value)
