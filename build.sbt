@@ -20,7 +20,7 @@ enablePlugins(SbtPlugin)
 name := "sbt-web-scalajs"
 
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.10.0")
-addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.4.4")
+addSbtPlugin("com.github.sbt" % "sbt-web" % "1.5.3")
 
 scalacOptions ++= Seq(
   "-deprecation",
