@@ -15,8 +15,8 @@ sbt.version=1.9.7
 
 Add the sbt-web-scalajs and Scala.js plugins to `project/plugins.sbt`:
 ```
-addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.2.0")
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.13.2")
+addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.3.0")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.14.0")
 ```
 
 Lastly, put the following configuration in `build.sbt`:
