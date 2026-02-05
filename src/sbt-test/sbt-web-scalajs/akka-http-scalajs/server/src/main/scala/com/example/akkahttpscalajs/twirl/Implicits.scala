@@ -1,6 +1,6 @@
 package com.example.akkahttpscalajs.twirl
 
-import akka.http.scaladsl.marshalling.{Marshaller, _}
+import akka.http.scaladsl.marshalling.{Marshaller, ToEntityMarshaller}
 import akka.http.scaladsl.model.MediaType
 import akka.http.scaladsl.model.MediaTypes._
 import play.twirl.api.{Html, Txt, Xml}

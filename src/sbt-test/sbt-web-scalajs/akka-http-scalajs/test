@@ -47,7 +47,7 @@ $ exec ./countScalaAndSourceMapFiles.sh 2 1
 > root/clean
 
 $ exec echo "Test - Archive should contain no Scala files when emptying sourceMappings in fullLinkJS"
-> set scalaJSStage in Global := FullOptStage
+> set Global / scalaJSStage := FullOptStage
 > set ThisBuild / Compile / fullLinkJS / sourceMappings := Seq.empty
 > Universal/packageBin
 $ exec ./countScalaAndSourceMapFiles.sh 0 4

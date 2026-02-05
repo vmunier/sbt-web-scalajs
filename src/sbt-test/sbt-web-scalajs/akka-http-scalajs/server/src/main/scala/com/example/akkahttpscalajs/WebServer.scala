@@ -2,13 +2,11 @@ package com.example.akkahttpscalajs
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory
 
 object WebServer {
-  def main(args: Array[String]) {
-    implicit val system = ActorSystem("server-system")
-    implicit val materializer = ActorMaterializer()
+  def main(args: Array[String]): Unit = {
+    implicit val system: ActorSystem = ActorSystem("server-system")
 
     val config = ConfigFactory.load()
     val interface = config.getString("http.interface")
@@ -16,7 +14,7 @@ object WebServer {
 
     val service = new WebService()
 
-    Http().bindAndHandle(service.route, interface, port)
+    Http().newServerAt(interface, port).bind(service.route)
 
     println(s"Server online at http://$interface:$port")
   }

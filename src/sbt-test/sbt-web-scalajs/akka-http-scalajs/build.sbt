@@ -1,7 +1,7 @@
 import org.scalajs.linker.interface.ModuleInitializer
 
 ThisBuild / organization := "com.example"
-ThisBuild / scalaVersion := "2.13.16"
+ThisBuild / scalaVersion := "2.13.17"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
 lazy val root = (project in file("."))
@@ -11,11 +11,10 @@ lazy val server = project.settings(
   scalaJSProjects := Seq(firstClient, secondClient),
   Assets / pipelineStages := Seq(scalaJSPipeline),
   // triggers scalaJSPipeline when using compile or continuous compilation
-  Compile / compile := ((Compile / compile) dependsOn scalaJSPipeline).value,
-  resolvers += "Akka library repository".at("https://repo.akka.io/maven"),
+  Compile / compile := Def.uncached((Compile / compile).dependsOn(scalaJSPipeline).value),
   libraryDependencies ++= Seq(
-    "com.typesafe.akka" %% "akka-http" % "10.6.0",
-    "com.typesafe.akka" %% "akka-stream" % "2.9.0"
+    "com.typesafe.akka" %% "akka-http" % "10.2.10",
+    "com.typesafe.akka" %% "akka-stream" % "2.6.21"
   ),
   Assets / WebKeys.packagePrefix := "public/",
   Runtime / managedClasspath += (Assets / packageBin).value
@@ -24,14 +23,9 @@ lazy val server = project.settings(
 
 lazy val firstClient = project.settings(
   scalaJSUseMainModuleInitializer := true,
-  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "2.8.0",
-  jsDependencies += "org.webjars" % "jquery" % "2.1.4" / "2.1.4/jquery.js",
-  Compile / fastLinkJS / jsMappings += toPathMapping((Compile / packageJSDependencies).value),
-  Compile / fullLinkJS / jsMappings += toPathMapping((Compile / packageMinifiedJSDependencies).value)
-).enablePlugins(ScalaJSPlugin, ScalaJSWeb, JSDependenciesPlugin)
+  libraryDependencies += "org.scala-js" %% "scalajs-dom" % "2.8.0"
+).enablePlugins(ScalaJSPlugin, ScalaJSWeb)
   .dependsOn(sharedJs)
-
-def toPathMapping(f: File): (File, String) = f -> f.getName
 
 lazy val secondClient = project.settings(
   Compile / scalaJSModuleInitializers +=
@@ -41,9 +35,13 @@ lazy val secondClient = project.settings(
   }
 ).enablePlugins(ScalaJSPlugin, ScalaJSWeb)
 
-lazy val shared = crossProject(JSPlatform, JVMPlatform)
-  .crossType(CrossType.Pure)
-  .in(file("shared"))
-  .jsConfigure(_.enablePlugins(ScalaJSWeb))
-lazy val sharedJvm = shared.jvm
-lazy val sharedJs = shared.js
+lazy val sharedJvm = project.in(file("shared"))
+  .settings(
+    Compile / unmanagedSourceDirectories += baseDirectory.value / "src" / "main" / "scala"
+  )
+
+lazy val sharedJs = project.in(file("shared/.js"))
+  .settings(
+    Compile / unmanagedSourceDirectories += (sharedJvm / baseDirectory).value / "src" / "main" / "scala"
+  )
+  .enablePlugins(ScalaJSPlugin, ScalaJSWeb)

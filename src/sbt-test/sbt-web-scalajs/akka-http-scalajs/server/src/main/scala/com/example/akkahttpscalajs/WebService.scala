@@ -1,12 +1,12 @@
 package com.example.akkahttpscalajs
 
-import akka.http.scaladsl.server.Directives
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import com.example.akkahttpscalajs.shared.SharedMessages
 import com.example.akkahttpscalajs.twirl.Implicits._
 
-class WebService() extends Directives {
-
-  val route = {
+class WebService() {
+  val route: Route =
     pathSingleSlash {
       get {
         complete {
@@ -21,5 +21,4 @@ class WebService() extends Directives {
           getFromResource("public/" + file)
         }
       }
-  }
 }

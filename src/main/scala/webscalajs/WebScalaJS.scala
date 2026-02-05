@@ -6,10 +6,10 @@ import com.typesafe.sbt.web.{PathMapping, SbtWeb}
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import sbt.Def.{setting, settingDyn, settingKey, task, taskDyn, taskKey, Initialize}
 import sbt.Keys._
-import sbt.Project.projectToRef
 import sbt._
-import sbt.internal.io.Source
+import sbt.WatchSource
 import sbt.io.Path
+import webscalajs.PluginCompat._
 import webscalajs.ScalaJSStageTasks._
 import webscalajs.ScalaJSWeb.autoImport.{jsMappings, sourceMappings}
 
@@ -31,13 +31,13 @@ object WebScalaJS extends AutoPlugin {
 
     val scalaJSDirectoriesFilter = settingKey[FileFilter]("Filter that accepts all the monitored Scala.js directories")
 
-    val scalaJSWatchSources = taskKey[Seq[Source]]("Watch sources on all Scala.js projects")
+    val scalaJSWatchSources = taskKey[Seq[WatchSource]]("Watch sources on all Scala.js projects")
   }
   import webscalajs.WebScalaJS.autoImport._
 
   override def projectSettings: Seq[Setting[_]] = Seq(
     scalaJSProjects := Seq(),
-    scalaJSPipeline := scalaJSPipelineTask.value,
+    scalaJSPipeline := Def.uncached(scalaJSPipelineTask.value),
     /**
      * The Scala.js directories are added to unmanagedSourceDirectories to be part of the directories monitored by Play run.
      * @see playMonitoredFilesTask in Play, which creates the list of monitored directories https://github.com/playframework/playframework/blob/f5535aa08d639bae0f1734ebe3bc9aad7ce0f487/framework/src/sbt-plugin/src/main/scala/play/sbt/PlayCommands.scala#L85
@@ -52,36 +52,41 @@ object WebScalaJS extends AutoPlugin {
     scalaJSDirectoriesFilter := monitoredScalaJSDirectories.value
       .map(scalaJSDir => new SimpleFileFilter(f => scalaJSDir.getCanonicalPath == f.getCanonicalPath))
       .foldLeft(NothingFilter: FileFilter)(_ || _),
-    scalaJSWatchSources := taskDyn {
+    scalaJSWatchSources := Def.uncached(taskDyn {
       taskOnProjects(transitiveDependencies(scalaJSProjects.value.toRefs), watchSources)
-    }.value,
-    watchSources ++= scalaJSWatchSources.value,
+    }.value),
+    watchSources ++= Def.uncached(scalaJSWatchSources.value),
     scalaJSPipeline / includeFilter := GlobFilter("*")
   )
 
   implicit private class ProjectsImplicits(projects: Seq[Project]) {
-    def toRefs: Seq[ProjectReference] = projects.map(projectToRef)
+    def toRefs: Seq[ProjectReference] = projects.map(toProjectRef)
   }
 
   private def filterMappings(
       mappings: Seq[PathMapping],
       include: FileFilter,
       exclude: FileFilter
-  ): Seq[(File, String)] =
-    for ((file, path) <- mappings if include.accept(file) && !exclude.accept(file))
-      yield file -> path
+  )(implicit conv: xsbti.FileConverter): Seq[PathMapping] =
+    for {
+      (fileRef, path) <- mappings
+      file = PluginCompat.toFile(fileRef)
+      if include.accept(file) && !exclude.accept(file)
+    } yield fileRef -> path
 
   private lazy val monitoredScalaJSDirectoriesSetting: Initialize[Seq[File]] = settingDyn {
     settingOnProjects(transitiveDependencies(scalaJSProjects.value.toRefs), unmanagedSourceDirectories)
   }
 
   private def scalaJSPipelineTask: Initialize[Task[Pipeline.Stage]] = task {
+    val conv: xsbti.FileConverter = fileConverter.value
     val include = (scalaJSPipeline / includeFilter).value
     val exclude = (scalaJSPipeline / excludeFilter).value
     val jsFiles = scalaJSTaskMappings.value
     val scalaFiles = sourcemapScalaFiles.value
 
-    mappings: Seq[PathMapping] => {
+    (mappings: Seq[PathMapping]) => {
+      implicit val conv2: xsbti.FileConverter = conv
       val filtered = filterMappings(mappings, include, exclude)
       filtered ++ jsFiles ++ scalaFiles
     }
@@ -104,14 +109,16 @@ object WebScalaJS extends AutoPlugin {
       val maybeSourceMappings =
         onScalaJSStage((fastLinkJS / sourceMappings).?, (fullLinkJS / sourceMappings).?)
       task {
+        implicit val conv: xsbti.FileConverter = fileConverter.value
         // all scalaJSProjects and their transitive dependencies that have sourceMappings defined
-        val projectsSourceMappings: Seq[(File, String)] =
+        val projectsSourceMappings: Seq[PathMapping] =
           maybeSourceMappings(_.toSeq.flatten).all(scopeFilter).value.flatten
         for {
-          (sourceDir, targetDir) <- projectsSourceMappings
-          scalaFiles = (sourceDir ** "*.scala").get
+          (sourceDirRef, targetDir) <- projectsSourceMappings
+          sourceDir = PluginCompat.toFile(sourceDirRef)
+          scalaFiles = getFiles(sourceDir ** "*.scala")
           (scalaFile, subPath) <- scalaFiles.pair(Path.relativeTo(sourceDir))
-        } yield (new File(scalaFile.getCanonicalPath), s"$targetDir/$subPath")
+        } yield PluginCompat.toFileRef(new File(scalaFile.getCanonicalPath)) -> s"$targetDir/$subPath"
       }
     }
   }
