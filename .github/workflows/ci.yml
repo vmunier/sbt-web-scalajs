@@ -22,4 +22,7 @@ jobs:
       with:
         distribution: temurin
         java-version: 21
+    # Cross-compile the plugin for both sbt 1 (Scala 2.12) and sbt 2 (Scala 3).
+    - run: sbt +compile
+    # scripted publishes and runs against the sbt 1 artifact (default scalaVersion).
     - run: sbt scripted
