@@ -136,3 +136,18 @@ Compile / compile := ((Compile / compile) dependsOn scalaJSPipeline).value
 ## Publish a new version of the plugin
 
 New versions are automatically published to Sonatype when creating a git tag, thanks to [sbt-ci-release](https://github.com/olafurpg/sbt-ci-release).
+
+## Running the tests
+
+The plugin is tested with [scripted](https://www.scala-sbt.org/1.x/docs/Testing-sbt-plugins.html) integration tests located in `src/sbt-test`. Each test applies the plugin to a sample project and asserts on the produced assets.
+
+```
+sbt scripted                                  # run all scripted tests
+sbt "scripted sbt-web-scalajs/play-scalajs"   # run a single test
+```
+
+The scripted tests run on a JDK supported by their sbt 1.x launcher (the CI uses JDK 21). On newer JDKs the launcher can fail to start, so pass an explicit JDK if needed:
+
+```
+sbt -java-home /path/to/jdk-21 scripted
+```
