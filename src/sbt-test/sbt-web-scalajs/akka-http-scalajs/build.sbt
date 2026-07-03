@@ -12,10 +12,9 @@ lazy val server = project.settings(
   Assets / pipelineStages := Seq(scalaJSPipeline),
   // triggers scalaJSPipeline when using compile or continuous compilation
   Compile / compile := ((Compile / compile) dependsOn scalaJSPipeline).value,
-  resolvers += "Akka library repository".at("https://repo.akka.io/maven"),
   libraryDependencies ++= Seq(
-    "com.typesafe.akka" %% "akka-http" % "10.6.0",
-    "com.typesafe.akka" %% "akka-stream" % "2.9.0"
+    "com.typesafe.akka" %% "akka-http" % "10.5.3",
+    "com.typesafe.akka" %% "akka-stream" % "2.8.8"
   ),
   Assets / WebKeys.packagePrefix := "public/",
   Runtime / managedClasspath += (Assets / packageBin).value
