@@ -24,8 +24,8 @@ lazy val server = project.settings(
 
 lazy val firstClient = project.settings(
   scalaJSUseMainModuleInitializer := true,
-  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "2.8.0",
-  jsDependencies += "org.webjars" % "jquery" % "2.1.4" / "2.1.4/jquery.js",
+  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "2.8.1",
+  jsDependencies += "org.webjars" % "jquery" % "3.7.1" / "3.7.1/jquery.js",
   Compile / fastLinkJS / jsMappings += toPathMapping((Compile / packageJSDependencies).value),
   Compile / fullLinkJS / jsMappings += toPathMapping((Compile / packageMinifiedJSDependencies).value)
 ).enablePlugins(ScalaJSPlugin, ScalaJSWeb, JSDependenciesPlugin)
