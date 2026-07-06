@@ -46,7 +46,7 @@ scalafmtOnCompile := true
 scriptedLaunchOpts += s"-Dplugin.version=${version.value}"
 scriptedBufferLog := false
 
-// Run scripted on a newer 1.x launcher than the 1.5.8 floor (too old for CI's JDK; sbt-binary 1.0 still loads).
+// Run scripted on a newer 1.x launcher than the 1.12.13 floor (too old for CI's JDK; sbt-binary 1.0 still loads).
 scriptedSbt := {
   if (scalaBinaryVersion.value == "2.12") "1.10.11"
   else (pluginCrossBuild / sbtVersion).value
