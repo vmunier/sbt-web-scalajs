@@ -19,7 +19,7 @@ enablePlugins(SbtPlugin)
 
 name := "sbt-web-scalajs"
 
-ThisBuild / crossScalaVersions := Seq("2.12.20", "3.8.1")
+ThisBuild / crossScalaVersions := Seq("2.12.20", "3.8.4")
 ThisBuild / scalaVersion := "2.12.20"
 
 (pluginCrossBuild / sbtVersion) := {
