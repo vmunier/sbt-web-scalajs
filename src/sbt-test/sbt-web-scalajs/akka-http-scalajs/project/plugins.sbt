@@ -8,5 +8,5 @@ sys.props.get("plugin.version") match {
 
 addSbtPlugin("org.portable-scala"       % "sbt-scalajs-crossproject" % "1.3.2")
 addSbtPlugin("org.scala-js"             % "sbt-jsdependencies"       % "1.0.2")
-addSbtPlugin("org.playframework.twirl"  % "sbt-twirl"                % "2.0.1")
-addSbtPlugin("com.github.sbt"           % "sbt-native-packager"      % "1.9.16")
+addSbtPlugin("org.playframework.twirl"  % "sbt-twirl"                % "2.0.9")
+addSbtPlugin("com.github.sbt"           % "sbt-native-packager"      % "1.11.7")
