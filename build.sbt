@@ -31,7 +31,7 @@ ThisBuild / scalaVersion := "2.12.20"
 
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.22.0")
 addSbtPlugin("com.github.sbt" % "sbt-web" % "1.6.0-M4")
-addSbtPlugin("com.github.sbt" % "sbt2-compat" % "0.1.0")
+addSbtPlugin("com.github.sbt" % "sbt2-compat" % "0.2.0")
 
 scalacOptions ++= Seq(
   "-deprecation",
