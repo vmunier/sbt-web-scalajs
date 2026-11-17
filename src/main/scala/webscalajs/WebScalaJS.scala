@@ -36,7 +36,7 @@ object WebScalaJS extends AutoPlugin {
   }
   import webscalajs.WebScalaJS.autoImport._
 
-  override def projectSettings: Seq[Setting[_]] = Seq(
+  override def projectSettings: Seq[Setting[?]] = Seq(
     scalaJSProjects := Seq(),
     // Pipeline stages and watch sources have no sbt 2 task cache serializer; opt these tasks out of caching.
     scalaJSPipeline := Def.uncached(scalaJSPipelineTask.value),
@@ -100,7 +100,7 @@ object WebScalaJS extends AutoPlugin {
   }
 
   private lazy val scalaJSTaskMappings: Initialize[Task[Seq[PathMapping]]] = taskDyn {
-    val filter = ScopeFilter(inProjects(scalaJSProjects.value.toRefs: _*), inConfigurations(Compile))
+    val filter = ScopeFilter(inProjects(scalaJSProjects.value.toRefs *), inConfigurations(Compile))
     task(scalaJSTaskFiles.all(filter).value.flatten)
   }
 
@@ -112,7 +112,7 @@ object WebScalaJS extends AutoPlugin {
   lazy val sourcemapScalaFiles: Initialize[Task[Seq[PathMapping]]] = taskDyn {
     val projects = transitiveDependencies(scalaJSProjects.value.toRefs)
     taskDyn {
-      val scopeFilter = ScopeFilter(inProjects(projects.value: _*), inConfigurations(Compile))
+      val scopeFilter = ScopeFilter(inProjects(projects.value *), inConfigurations(Compile))
       val maybeSourceMappings =
         onScalaJSStage((fastLinkJS / sourceMappings).?, (fullLinkJS / sourceMappings).?)
       task {
@@ -138,7 +138,7 @@ object WebScalaJS extends AutoPlugin {
       projects: Initialize[Seq[ProjectRef]],
       action: Initialize[Task[Seq[A]]]
   ): Initialize[Task[Seq[A]]] = taskDyn {
-    val scopeFilter = ScopeFilter(inProjects(projects.value: _*), inConfigurations(Compile))
+    val scopeFilter = ScopeFilter(inProjects(projects.value *), inConfigurations(Compile))
     task {
       action.all(scopeFilter).value.flatten
     }
@@ -148,7 +148,7 @@ object WebScalaJS extends AutoPlugin {
       projects: Initialize[Seq[ProjectRef]],
       action: Initialize[Seq[A]]
   ): Initialize[Seq[A]] = settingDyn {
-    val scopeFilter = ScopeFilter(inProjects(projects.value: _*), inConfigurations(Compile))
+    val scopeFilter = ScopeFilter(inProjects(projects.value *), inConfigurations(Compile))
     setting {
       action.all(scopeFilter).value.flatten
     }
