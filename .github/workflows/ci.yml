@@ -10,6 +10,10 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [17, 21, 25]
 
     steps:
     - uses: actions/checkout@v4
@@ -17,12 +21,12 @@ jobs:
         fetch-depth: 0
     - name: Setup sbt
       uses: sbt/setup-sbt@v1
-    - name: Set up JDK 21
+    - name: Set up JDK
       uses: actions/setup-java@v4
       with:
         distribution: temurin
-        java-version: 21
+        java-version: ${{ matrix.java }}
     # Cross-compile the plugin for both sbt 1 (Scala 2.12) and sbt 2 (Scala 3).
     - run: sbt +compile
-    # scripted publishes and runs against the sbt 1 artifact (default scalaVersion).
-    - run: sbt scripted
+    # Each lane publishes its plugin locally before running its fixtures.
+    - run: sbt +test +scripted

@@ -43,10 +43,10 @@ object ScalaJSWeb extends AutoPlugin {
   }
   import autoImport._
 
-  override def projectSettings: Seq[Setting[_]] =
+  override def projectSettings: Seq[Setting[?]] =
     inConfig(Compile)(configSettings) ++ inConfig(Test)(configSettings)
 
-  private val configSettings: Seq[Setting[_]] = Seq(
+  private val configSettings: Seq[Setting[?]] = Seq(
     // PathMapping values have no sbt 2 task cache serializer, so opt these tasks out of caching.
     scalacOptions ++= Def.uncached {
       val mappings = onScalaJSStage(
@@ -71,7 +71,7 @@ object ScalaJSWeb extends AutoPlugin {
     toFileRefsMapping(mappings)
   }
 
-  private def scalaJSStageSettings(linkJS: TaskKey[Attributed[Report]]): Seq[Setting[_]] =
+  private def scalaJSStageSettings(linkJS: TaskKey[Attributed[Report]]): Seq[Setting[?]] =
     Seq(
       // Pick up value in ThisBuild if already defined
       linkJS / sourceMappings := (linkJS / sourceMappings).?.value.getOrElse {

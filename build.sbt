@@ -19,13 +19,13 @@ enablePlugins(SbtPlugin)
 
 name := "sbt-web-scalajs"
 
-ThisBuild / crossScalaVersions := Seq("2.12.20", "3.8.1")
-ThisBuild / scalaVersion := "2.12.20"
+ThisBuild / crossScalaVersions := Seq("2.12.21", "3.9.0")
+ThisBuild / scalaVersion := "2.12.21"
 
 (pluginCrossBuild / sbtVersion) := {
   scalaBinaryVersion.value match {
     case "2.12" => "1.5.8"
-    case _      => "2.0.1"
+    case _      => "2.1.0"
   }
 }
 
@@ -48,6 +48,10 @@ scriptedBufferLog := false
 
 // Run scripted on a newer 1.x launcher than the 1.5.8 floor (too old for CI's JDK; sbt-binary 1.0 still loads).
 scriptedSbt := {
-  if (scalaBinaryVersion.value == "2.12") "1.10.11"
+  if (scalaBinaryVersion.value == "2.12") "1.13.1"
   else (pluginCrossBuild / sbtVersion).value
+}
+
+scalacOptions ++= {
+  if (scalaBinaryVersion.value == "2.12") Seq("-Xsource:3", "-release:8") else Nil
 }
